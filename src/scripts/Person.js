@@ -1,0 +1,129 @@
+import GameObject from "./GameObject";
+import utils from "./utils";
+
+class Person extends GameObject {
+    constructor(config) {
+        super(config);
+        this.movingProgressRemaining = 0;
+        this.isStanding = false; // this is to indicate when an NPC is currently in a stand command currently not necessary as I have already dealt with events not overriding other stand events
+        this.isTryingToMove = false; // niche case, but in situations where NPCs are being blocked, I'd want them to still play the walking animation
+        this.isPlayerControlled = config.isPlayerControlled || false
+
+        this.directionVelocities = { 
+            // NOTE: velocities may not be accurately reflected in game, since the player can't move faster than 16 pixels per frame and any overflow in the pixels travelled will be lost, (eg, velocity of 15 will mean that in 2 frames, the character travels 30 pixels but that gets cut down to 16, effective speed is 8)
+            // Due to the grid based movement of this game, this is fine for now.
+            "up"    : ["y", -1],
+            "down"  : ["y", 1],
+            "left"  : ["x", -1],
+            "right" : ["x", 1],
+        }
+
+    }
+
+    update(state) {
+        super.update(state);
+        // console.log("Updating Person")
+        if (this.movingProgressRemaining > 0){
+            this.updatePosition();
+        } else {
+            // Case: We are keyboard ready and have an arrow pressed
+            if (!state.map.isCutscenePlaying && state.arrow && this.isPlayerControlled) { 
+                //This code fires then player has completed grid movement and now wants to start another one
+                this.startBehaviour(state, {
+                    type: 'walk',
+                    direction: state.arrow,
+                    retry: false //added for clarity
+                })
+                
+            }
+            
+        }
+        // updateing the animations needs to be done here and not in the 'else' block, since for NPCs the behaviours are executed in the super.update, and therefore will never be reached when the NPC is walking 
+        this.updateSpriteAnimations(state);
+        
+    }
+
+    startBehaviour(state, behaviour) {
+        //console.log(behaviour)
+        this.direction = behaviour.direction;
+        //console.log(this.id + ' ' + this.direction)
+        switch (behaviour.type) {
+            case "walk":
+                // Stop here if the space is not free
+                if (state.map.detectObstruction(this.x, this.y, this.direction)){
+                    // we only set isTryingToMove to true when behaviour.retry is true since if this was a player in a non-cutscene event, trying to walk in an obstruction will cause isTryingToMove to become true, and it will only be set to false on the next successful movement, NOT when you let go of the direction, this will cause the hero's walking animation to play in cutscenes
+                    if (behaviour.retry) {
+                        this.isTryingToMove = true
+                        setTimeout(() => {
+                            this.startBehaviour(state, behaviour)
+                        }, 10) // tbh I don't like this, as it detachs from the main game loop
+                    }
+                    
+                    
+                    return;
+                };
+
+                //Ready to walk!
+                this.isTryingToMove = false
+                state.map.moveWall(this.x, this.y, this.direction);
+                this.movingProgressRemaining = utils.withGrid(1);
+                break;
+            case 'stand':
+                this.isStanding = true
+
+                setTimeout(() => {
+                    utils.emitEvent("PersonStandingComplete", {
+                        targetId: this.id
+                    })
+                    this.isStanding = false
+                }, behaviour.time)
+                break;
+            default:
+                console.error(`Error: invalid behaviour type '${behaviour.type}'`);
+                
+        }
+
+    }
+
+    updatePosition() {
+        const [axis, velocity] = this.directionVelocities[this.direction];
+        
+        const moveDist = Math.min(this.movingProgressRemaining, Math.abs(velocity)) // the most likely won't end up negative (aka, overshooting) but I', going to omit a 0 here so that it can "self-correct" just in case.
+
+        if (velocity >= 0) { // moveDist is an absolute value so we need to look at the sign of the velocity
+            this[axis] += moveDist;
+        } else {
+            this[axis] -= moveDist;
+        }
+        
+        this.movingProgressRemaining -= moveDist;
+
+        if (this.movingProgressRemaining === 0) {
+            //We finished the walk!
+            utils.emitEvent("PersonWalkingComplete", {
+                targetId: this.id
+            })
+            
+        }
+    }
+
+    updateSpriteAnimations(state){
+
+        if (this.isPlayerControlled && !state.map.isCutscenePlaying){ // chances are if a cut scene is playing, the player doesn't have control of any character, so we can consider every person as an NPC
+            if (this.movingProgressRemaining === 0 && !state.arrow) {// the player is no longer moving/trying to move, start idle animations
+                this.sprite.setAnimation("idle_" + this.direction);
+            } else { // the player is either currently moving, or attempting to move
+                this.sprite.setAnimation("walk_"+ this.direction); 
+            }
+        } else { // the person is an NPC
+            if (this.movingProgressRemaining === 0 && !this.isTryingToMove){
+                this.sprite.setAnimation("idle_" + this.direction);
+            } else { 
+                this.sprite.setAnimation("walk_"+ this.direction); 
+            }
+        }
+        
+    }
+}
+
+export default Person

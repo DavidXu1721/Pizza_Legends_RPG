@@ -1,0 +1,144 @@
+{
+  "DemoRoom": {
+    "lowerSrc": "/src/assets/maps/DemoLower.png",
+    "upperSrc": "/src/assets/maps/DemoUpper.png",
+    "gameObjects": {
+      "hero": {
+        "type": "Person",
+        "isPlayerControlled": true,
+        "x": 5,
+        "y": 6,
+        "src": "/src/assets/characters/people/hero.png"
+      },
+      "npcA": {
+          "type": "Person",
+          "x": 7,
+          "y": 9,
+          "src": "/src/assets/characters/people/npc1.png",
+          "behaviourLoop": [
+            {"type": "stand", "direction": "left", "time": 200},
+            {"type": "stand", "direction": "up", "time": 800},
+            {"type": "stand", "direction": "right", "time": 1200},
+            {"type": "stand", "direction": "down", "time": 300}
+          ],
+          "talking": [
+            {
+              "events":[
+                {"type":"textMessage", "text": "I'm busy...", "faceHero": "npcA"},
+                {"type":"textMessage", "text": "Go away!"}
+              ]
+            }
+          ]
+        },
+      "npcB": {
+          "type": "Person",
+          "x": 8,
+          "y": 5,
+          "src": "/src/assets/characters/people/npc2.png",
+          "behaviourLoop": [
+            
+          ],
+          "talking": [
+            {
+              "events":[
+                {"type":"textMessage", "text": "I'm busy...", "faceHero": "npcB"},
+                {"type":"textMessage", "text": "Go away!"}
+              ]
+            }
+          ]
+        },
+      "_comment": {
+        
+      } 
+
+    },
+    "walls": [
+      [0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0], [10, 0],  [11, 0],
+      [0, 1], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1], [8, 1], [9, 1], [10, 1],  [11, 1],
+      [0, 2], [1, 2], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2],         [8, 2], [9, 2], [10, 2],  [11, 2],
+      [0, 3], [1, 3], [2, 3], [3, 3], [4, 3], [5, 3], [6, 3],         [8, 3], [9, 3], [10, 3],  [11, 3],
+      [0, 4],                                         [6, 4],         [8, 4],                   [11, 4],
+      [0, 5],                                                                                   [11, 5],
+      [0, 6],                                                 [7, 6], [8, 6],                   [11, 6], 
+      [0, 7],                                                 [7, 7], [8, 7],                   [11, 7],
+      [0, 8],                                                                                   [11, 8],
+      [0, 9],                                                                                   [11, 9],
+      [0, 10],[1, 10],[2, 10],[3, 10],[4, 10],        [6, 10],[7, 10],[8, 10],[9, 10],[10,10],  [11, 10],
+                                      [4, 11],[5, 11],[6, 11]
+    ],
+    "cutsceneSpaces": [
+      {
+        "coords": [7, 4],
+        "data": [
+          {
+            "events": [
+              {"target": "npcB", "type": "walk", "direction": "left"},
+              [{"type": "textMessage", "text": "You can't be in there!"},{"target": "npcB", "type": "stand", "direction": "up", "time": 500}],
+              [{"target": "npcB", "type": "walk", "direction": "right"}, {"target": "hero", "type": "walk", "direction": "down"}],
+              [{"target": "npcB", "type": "stand", "direction": "left", "time": 100}, {"target": "hero", "type": "walk", "direction": "left"}]
+              
+            ]
+          }
+        ]
+      },
+      {
+        "coords": [5, 10],
+        "data": [
+          {
+            "events": [
+              {"type": "changeMap", "newMap": "Kitchen"}
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "Kitchen": {
+    "lowerSrc": "/src/assets/maps/KitchenLower.png",
+    "upperSrc": "/src/assets/maps/KitchenUpper.png",
+    "gameObjects": {
+      "hero": {
+        "type": "Person",
+        "direction": "up",
+        "isPlayerControlled": true,
+        "x": 3,
+        "y": 5,
+        "src": "/src/assets/characters/people/hero.png"
+      },
+      "npcA": {
+        "type": "Person",
+        "x": 9,
+        "y": 6,
+        "src": "/src/assets/characters/people/npc2.png",
+        "talking": [
+            {
+              "events":[
+                {"type":"textMessage", "text": "You made it!", "faceHero": "npcA"}
+              ]
+            }
+          ]
+      },
+      "npcB": {
+        "type": "Person",
+        "x": 10,
+        "y": 8,
+        "src": "/src/assets/characters/people/npc3.png"
+      }
+    },
+    "walls": [
+      [0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0], [10, 0],  [11, 0], [12, 0], [13, 0],
+      [0, 1], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1], [8, 1], [9, 1], [10, 1],  [11, 1], [12, 1], [13, 1],
+      [0, 2], [1, 2], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [8, 2], [9, 2], [10, 2],  [11, 2], [12, 2], [13, 2],
+      [0, 3], [1, 3], [2, 3], [3, 3], [4, 3], [5, 3], [6, 3], [7, 3], [8, 3], [9, 3], [10, 3],  [11, 3], [12, 3], [13, 3],
+      [0, 4],                                                                                   [11, 4], [12, 4], [13, 4],
+      [0, 5], [1, 5],                                                                                             [13, 5],
+      [0, 6], [1, 6],                                                                                             [13, 6],
+      [0, 7], [1, 7],                                 [6, 7], [7, 7],         [9, 7], [10, 7],                    [13, 7],
+      [0, 8],                                                                                                     [13, 8],
+      [0, 9], [1, 9], [2, 9],                                                 [9, 9], [10, 9],                    [13, 9],
+      [0, 10],[1, 10],[2, 10],[3, 10],[4, 10],        [6, 10],[7, 10],[8, 10],[9, 10],[10,10],  [11, 10],[12, 10],[13, 10], 
+                                      [4, 11],[5, 11],[6, 11]
+    ],
+    "cutsceneSpaces": []
+  }
+}

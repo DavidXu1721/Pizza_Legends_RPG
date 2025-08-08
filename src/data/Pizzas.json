@@ -1,0 +1,28 @@
+{   
+    "PizzaTypes": [
+        "normal",
+        "spicy",
+        "veggie",
+        "fungi",
+        "chill"
+    ],
+
+    "Pizzas": {
+        "s001": {
+            "name": "Slice Samurai",
+            "type": "spicy",
+            "src": "./assets/characters/pizzas/s001.png",
+            "icon": "./assets/icons/spicy.png" 
+        },
+        "v001": {
+            "name": "Call Me Kale",
+            "type": "veggie",
+            "src": "./assets/characters/pizzas/v001.png",
+            "icon": "./assets/icons/veggie.png" 
+        },
+        "f001": {
+            "name": "Portobello Express",
+            "type": ""
+        }
+    }
+}

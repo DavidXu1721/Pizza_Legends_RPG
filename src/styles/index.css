@@ -1,0 +1,46 @@
+:root{
+  --border-color: #291D4D;
+  --dialog-background: #FFF3B4;
+
+  --menu-background: #FFE8D2;
+  --menu-border-color: #A48465;
+  --menu-font-color: #341680;
+  --menu-selected-background: #7fc2ff;
+}
+
+*{
+  box-sizing: border-box;
+}
+
+body{
+  background-color: #333;
+  padding: 0;
+  margin: 0;
+  overflow: hidden; /* TODO: add a feature preventing arrowkey scrolling when game is focused*/
+}
+
+
+
+.app {
+  --game-width: 352px;
+  --game-height: 198px;
+  --game-scale: 3;
+
+  position: relative;
+  width: calc(var(--game-width) * var(--game-scale));
+  height: calc(var(--game-height) * var(--game-scale));
+  margin: 0 auto;
+  margin-top: 20px;
+  outline: 10px solid #fff;
+
+  #pizza-legends-RPG{
+    width: var(--game-width);
+    height: var(--game-height);
+    transform: translate(-50%, -50%) scale(3) translate(50%, 50%);
+    overflow: hidden;
+  }
+}
+
+.app canvas{
+  image-rendering: pixelated;
+}
