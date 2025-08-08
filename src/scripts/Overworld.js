@@ -5,18 +5,27 @@ import DirectionInput from "./DirectionInput";
 import KeyPressListener from "./KeyPressListener";
 import utils from "./utils";
 
+
 class Overworld {
     constructor(config) {
         this.elementId = config.elementId;
         this.canvas = document.querySelector('#'+ this.elementId).querySelector(".game-canvas");
         this.ctx = this.canvas.getContext("2d");
         this.map = null
+        this._mapDataCache = null; // internal cache of the map data
     }
+
+    async getMapData() {
+    if (!this._mapDataCache) {
+      const response = await fetch("./src/data/OverworldMaps.json");
+      this._mapDataCache = await response.json();
+    }
+    return this._mapDataCache;
+  }
 
     async loadMapData(mapName) {
         try {
-            const response = await fetch("./src/data/OverworldMaps.json");
-            const data = await response.json();
+            const data = await this.getMapData()
             // console.log("Successfully retrieved data: "+ JSON.stringify(data));
             const mapData = data[mapName];
             console.log("Turning the gameobject configs into objects");
@@ -135,8 +144,6 @@ class Overworld {
         console.log("Hello from the Overworld", this);
 
         this.startMap(await this.loadMapData("DemoRoom"))
-        
-        this.map.mountObjects();
 
         this.bindActionInput();
         this.bindHeroPositionCheck();
@@ -147,7 +154,7 @@ class Overworld {
         // startGameLoop starts after the cutscene to prevent any initial behaviours from running
        
         this.map.startCutscene([
-            {type: "battle"}
+            //{type: "battle"}
             //{type: "changeMap", newMap: "Kitchen"},
             //{type: "textMessage", text: "This is the very first message!"},
             // {target: "hero", type: "walk", direction: "down"},
