@@ -16,17 +16,18 @@ class Overworld {
     }
 
     async getMapData() {
-    if (!this._mapDataCache) {
-      const response = await fetch("./src/data/OverworldMaps.json");
-      this._mapDataCache = await response.json();
+        if (!this._mapDataCache) {
+            const response = await fetch("./src/data/OverworldMaps.json");
+            this._mapDataCache = await response.json();
+            console.log("Successfully retrieved data: "+ JSON.stringify(this._mapDataCache));
+        }
+        return this._mapDataCache;
     }
-    return this._mapDataCache;
-  }
 
     async loadMapData(mapName) {
         try {
             const data = await this.getMapData()
-            // console.log("Successfully retrieved data: "+ JSON.stringify(data));
+            
             const mapData = data[mapName];
             console.log("Turning the gameobject configs into objects");
             Object.keys(mapData.gameObjects).forEach(key => {
@@ -154,7 +155,7 @@ class Overworld {
         // startGameLoop starts after the cutscene to prevent any initial behaviours from running
        
         this.map.startCutscene([
-            //{type: "battle"}
+            {type: "battle"}
             //{type: "changeMap", newMap: "Kitchen"},
             //{type: "textMessage", text: "This is the very first message!"},
             // {target: "hero", type: "walk", direction: "down"},
