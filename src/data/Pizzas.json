@@ -11,18 +11,23 @@
         "s001": {
             "name": "Slice Samurai",
             "type": "spicy",
-            "src": "./assets/characters/pizzas/s001.png",
-            "icon": "./assets/icons/spicy.png" 
+            "src": "./src/assets/characters/pizzas/s001.png",
+            "icon": "./src/assets/icons/spicy.png",
+            "actions": ["damage1"]
         },
         "v001": {
             "name": "Call Me Kale",
             "type": "veggie",
-            "src": "./assets/characters/pizzas/v001.png",
-            "icon": "./assets/icons/veggie.png" 
+            "src": "./src/assets/characters/pizzas/v001.png",
+            "icon": "./src/assets/icons/veggie.png",
+            "actions": ["damage1"]
         },
         "f001": {
             "name": "Portobello Express",
-            "type": ""
+            "type": "fungi",
+            "src": "./src/assets/characters/pizzas/f001.png",
+            "icon": "./src/assets/icons/fungi.png",
+            "actions": ["damage1"]
         }
     }
 }
