@@ -112,6 +112,14 @@ const utils = {
             default:
                 console.error("Error: Invalid Direction Parameter");
         }
+    },
+
+    wait(ms) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve()
+            }, ms)
+        })
     }
 
 }
