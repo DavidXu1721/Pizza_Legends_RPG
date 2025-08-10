@@ -2,8 +2,9 @@ import KeyPressListener from "./KeyPressListener";
 import TypewriterText from "./TypewriterText";
 
 class TextMessage {
-    constructor({text, onComplete}) {
+    constructor({text, isInstant = false, onComplete}) {
         this.text = text;
+        this.isInstant = isInstant;
         this.onComplete = onComplete;
         this.element = null;
     }
@@ -23,7 +24,6 @@ class TextMessage {
             element: this.element.querySelector(".TextMessage_p"),
             text: this.text
         })
-
 
 
         this.element.querySelector('button').addEventListener("click", () => { // gets disconnected when the element is removed, so this is fine, without a removeEventListener
@@ -56,6 +56,10 @@ class TextMessage {
         this.createElement();
         parentContainer.appendChild(this.element)
         this.typewriterText.init()
+
+        if (this.isInstant) { // the text message is to be completed instantly
+            this.typewriterText.skipToDone();
+        }
     }
 }
 
