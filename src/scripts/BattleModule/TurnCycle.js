@@ -12,6 +12,8 @@ class TurnCycle {
         const enemyId = this.battle.activeCombatants[caster.team === "player" ? "enemy" : "player"];
         const enemy = this.battle.combatants[enemyId];
 
+        //Handle the submission of next move
+
         const submission = await this.onNewEvent({
             type: "submissionMenu",
             caster,
@@ -32,6 +34,21 @@ class TurnCycle {
             await this.onNewEvent(event);
         }
 
+        // Handle any post-submission events, status effect updates, etc
+        const postEvents = caster.getPostEvents();
+        for (let i=0; i < postEvents.length; i++) {
+            const event = {
+                ...postEvents[i],
+                submission,
+                action: submission.action,
+                caster,
+                target: submission.target,
+            }
+
+            await this.onNewEvent(event);
+        }
+        
+        // Switch the current team ant do another turn
         this.currentTeam = (this.currentTeam === "player") ? "enemy" : "player";
         this.turn();
     }

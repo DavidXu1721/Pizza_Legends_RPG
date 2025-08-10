@@ -25,7 +25,6 @@ class TextMessage {
             text: this.text
         })
 
-
         this.element.querySelector('button').addEventListener("click", () => { // gets disconnected when the element is removed, so this is fine, without a removeEventListener
             // Close the text message
             this.finish();
