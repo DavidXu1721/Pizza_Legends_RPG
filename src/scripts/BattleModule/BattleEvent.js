@@ -13,13 +13,15 @@ class BattleEvent {
         const text = this.event.text
         .replace("{CASTER}", this.event.caster?.name)
         .replace("{TARGET}", this.event.target?.name)
-        .replace("{ACTION}", this.event.action?.name)
+        .replace("{ACTION}", this.event.action?.name);
 
-        const isInstant = this.event.isInstant
+        const config = this.event.config || {};
+
+        config.textSpeed = 200; // in the battle I want the text to be faster
 
         const message = new TextMessage({
             text, 
-            isInstant,
+            config,
             onComplete: () => {
                 resolve();
             }
@@ -28,41 +30,89 @@ class BattleEvent {
     }
 
     async stateChange(resolve) {
-        const {caster, target, damage, recover} = this.event;
+        const {caster, target, damage, recover, status, action} = this.event;
 
-        let changeMessage 
+        // we are actually going to have this function set up to only work in JUST ONE of the damage, recover, status, etc is not undefined/null;
+        const changeArray = [damage, recover, status]
+        
+        if (changeArray.filter(change => (change)).length === 0) {
+            console.error("ERROR: stateChange event has zero changes" + JSON.stringify(changeArray))
+        } else if (changeArray.filter(change => (change)).length > 1) {
+            console.error("ERROR: stateChange event has more than one change (must have EXACTLY one)" + JSON.stringify(changeArray))
+        }
+
+        let changeMessage
+        let messageEvent
+
+        let stateChangeTarget = this.event.onCaster ? caster : target;
+        // if the move's targetType is friendly, we set the stateChangeTarget to the caster (may expand functionality in the future)
+        if (action.targetType === "friendly") {
+            stateChangeTarget = caster;
+        }
 
         if (damage) {
             //modify the target to have less HP
-            target.update({
-                hp: target.hp - damage
+            stateChangeTarget.update({
+                hp: Math.max(0, target.hp - damage)
             })
 
             //start blinking
             target.pizzaElement.classList.add("battle-damage-blinking");
 
-            const messageEvent = {
-                ...{type: "textMessage", text: `${damage} damage dealt to {TARGET}`, isInstant: true},
+            messageEvent = {
+                ...{type: "textMessage", text: `${damage} damage dealt to {TARGET}`, config: {isInstant: true, manualProgress: false, autoProgressEvent: "statusChangeAutoProgress"}},
                 caster,
                 target
             }
-            
-            changeMessage = this.battle.turnCycle.onNewEvent(messageEvent)
         }
 
         if (recover) {
-            const recoverTarget = this.event.onCaster ? caster : target;
-            let newHp = recoverTarget.hp + recover;
-            if(newHp > recoverTarget.maxHp) {
-                newHp = recoverTarget.maxHp;
+            
+            let newHp = stateChangeTarget.hp + recover;
+            if(newHp > stateChangeTarget.maxHp) {
+                newHp = stateChangeTarget.maxHp;
             }
-            recoverTarget.update({
+            // update the target's hp, or the caster if event.onCaster is true
+            stateChangeTarget.update({
                 hp: newHp
             })
+
+            messageEvent = {
+                ...{type: "textMessage", text: `{TARGET} recovered ${recover} health`,  config: {isInstant: true, manualProgress: false, autoProgressEvent: "statusChangeAutoProgress"}},
+                target: stateChangeTarget
+            }
+        }
+
+        if (status) {
+            if (status.type === "reset"){
+                stateChangeTarget.update({
+                    status: null
+                })
+                messageEvent = {
+                    ...{type: "textMessage", text: `{TARGET} reset their status effects`,  config: {isInstant: true, manualProgress: false, autoProgressEvent: "statusChangeAutoProgress"}},
+                    target: stateChangeTarget
+                }
+            } else {
+                stateChangeTarget.update({
+                    status: {...status} // make sure to pass a shallow copy instead of the memory address
+                })
+                messageEvent = {
+                    ...{type: "textMessage", text: `{TARGET} became ${stateChangeTarget.status.type}`,  config: {isInstant: true, manualProgress: false, autoProgressEvent: "statusChangeAutoProgress"}},
+                    target: stateChangeTarget
+                }
+            }
+            
+        }
+
+        if (messageEvent){
+            changeMessage = this.battle.turnCycle.onNewEvent(messageEvent)
         }
 
         // wait a little bit
-        await utils.wait(600);
+        await utils.wait(1200, {forceClear: "Enter"}); // so the text message is technically not manually progressed but the utils does have a button (enter) to stop the wait early, 
+        if (messageEvent){
+            utils.emitEvent(messageEvent.config.autoProgressEvent);
+        }
 
         // stop blinking, if the action didn't involve damage, then this doesn't mess anything up as we are removing nothing, the 600 ms timer still makes the state change event take some time
         target.pizzaElement.classList.remove("battle-damage-blinking");
