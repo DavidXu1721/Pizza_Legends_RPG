@@ -20,7 +20,7 @@ class TurnCycle {
             enemy
         });
 
-        const resultingEvents = submission.action.success;
+        const resultingEvents = caster.getReplacedEvents(submission.action);
 
         for (let i=0; i<resultingEvents.length; i++) {
             const event = {
@@ -47,6 +47,12 @@ class TurnCycle {
 
             await this.onNewEvent(event);
         }
+
+        // Check if any status effects have expired
+        const expiredEvent = caster.decrementStatus();
+        if (expiredEvent) {
+            await this.onNewEvent(expiredEvent)
+        }
         
         // Switch the current team ant do another turn
         this.currentTeam = (this.currentTeam === "player") ? "enemy" : "player";
@@ -55,10 +61,10 @@ class TurnCycle {
 
     async init() {
 
-        await this.onNewEvent({
-            type: "textMessage",
-            text: "The battle is starting!"
-        })
+        // await this.onNewEvent({
+        //     type: "textMessage",
+        //     text: "The battle is starting!"
+        // })
 
         // Start the first turn!
         this.turn();
