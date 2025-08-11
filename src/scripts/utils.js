@@ -114,14 +114,59 @@ const utils = {
         }
     },
 
-    wait(ms) {
-        return new Promise(resolve => {
-            setTimeout(() => {
-                resolve()
-            }, ms)
-        })
-    }
+    wait(ms, { forceClear } = {}) {
+        return new Promise((resolve) => {
+            let timeoutId;
+            let onForceClear;
 
+            const cleanup = () => {
+                clearTimeout(timeoutId);
+                if (onForceClear) {
+                    document.removeEventListener("keydown", onForceClear);
+                }
+            };
+
+            // Optional early clear on key press
+            if (forceClear) {
+                onForceClear = (event) => {
+                    if (event.code === forceClear) {
+                        cleanup();
+                        resolve();
+                    }
+                };
+                document.addEventListener("keydown", onForceClear);
+            }
+
+            // Always clear after timeout
+            timeoutId = setTimeout(() => {
+                cleanup();
+                resolve();
+            }, ms);
+        });
+    },
+
+    getRandomFromArray(array) {
+        return array[Math.floor(Math.random() * array.length)]
+    },
+
+    /**
+     * Returns true with a specified probability, otherwise false
+     *
+     * @param {number} probability - A probability between 0 and 1
+     * 
+     * @returns {boolean} 
+     *
+     * @example
+     */
+
+    getRNG(probability) {
+        if (probability < 0 || probability > 1){
+            console.error("ERROR: probability must be between 0 and 1");
+        }
+
+        return (Math.random() < probability)
+    }
+    
 }
 
 export default utils
