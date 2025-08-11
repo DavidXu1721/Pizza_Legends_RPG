@@ -33,6 +33,12 @@ body{
   margin-top: 20px;
   outline: 10px solid #fff;
 
+  font-family: "Inter", 'Times New Roman', Times, serif;
+
+  button{
+    font-family: "Inter", 'Times New Roman', Times, serif;
+  }
+
   #pizza-legends-RPG{
     width: var(--game-width);
     height: var(--game-height);
