@@ -142,12 +142,13 @@
         bottom: -3px;
         padding-left: 2px;
         padding-right: 2px;
+        text-wrap: nowrap;
         background: rgba(0,0,0,0.8);
         color: white;
         margin:0;
     }
     .Combatant_status[data-status="saucy"] {
-        color:red;
+        background:rgb(168, 0, 0);
     }
     .Combatant_status[data-status="clumsy"] {
         background: #582a79;
@@ -189,19 +190,68 @@
     animation: battle-damage-blinking 0.3s steps(2, start) infinite;
 }
 
-@keyframes battle-spin-right {
+@keyframes battle-spin1-right {
     0% { transform: translate3d(0, 0, 0) rotate(0deg) scale(2)}
     25% { transform: translate3d(100%, -25%, 0) rotate(45deg) scale(2)}
     100% { transform: translate3d(0, 0, 0) scale(2)}
 }
-.battle-spin-right{
-    animation: battle-spin-right 0.8s;
+.battle-spin1-right{
+    animation: battle-spin1-right 0.8s;
 }
-@keyframes battle-spin-left {
+@keyframes battle-spin1-left {
     0% { transform: translate3d(0, 0, 0) rotate(0deg) scale(2)}
-    25% { transform: translate3d(-100%, 25%, 0) rotate(45deg) scale(2)}
+    25% { transform: translate3d(-50%, 25%, 0) rotate(45deg) scale(2)}
     100% { transform: translate3d(0, 0, 0) scale(2)}
 }
-.battle-spin-left{
+.battle-spin1-left{
     animation: battle-spin-left 0.8s;
+}
+
+@keyframes battle-spin2-right {
+    0% { transform: translate3d(0, 0, 0)  translate3d(0, 50%, 0) rotate3d(1, 0, 0, 0deg)  translate3d(0, -50%, 0) scale(2)}
+    25% { transform: translate3d(0, 50%, 0) rotate3d(1, 0, 0, 45deg) translate3d(0, -50%, 0) scale(3)}
+    50% { transform: translate3d(0, 50%, 0) rotate3d(1, 0, 0, 90deg)  translate3d(0, -50%, 0) scale(3)}
+    70% { transform: translate3d(100%, -25%, 0) translate3d(0, 50%, 0) rotate3d(1, 0, 0, 180deg)  translate3d(0, -50%, 0)scale(3)}
+    100% { transform: translate3d(0, 0, 0) scale(2)}
+}
+.battle-spin2-right{
+    animation: battle-spin2-right 0.8s;
+}
+@keyframes battle-spin2-left {
+    0% { transform: translate3d(0, 0, 0) translate3d(0, 50%, 0) rotate3d(1, 0, 0, 0deg) translate3d(0, -50%, 0) scale(2)}
+    25% { transform: translate3d(0, 50%, 0) rotate3d(1, 0, 0, 45deg) translate3d(0, -50%, 0) scale(3)}
+    50% { transform: translate3d(0, 50%, 0) rotate3d(1, 0, 0, 90deg) translate3d(0, -50%, 0) scale(3)}
+    25% { transform: translate3d(-50%, 25%, 0) translate3d(0, 50%, 0) rotate3d(1, 0, 0, 180deg) translate3d(0, -50%, 0) scale(3)}
+    100% { transform: translate3d(0, 0, 0) scale(2)}
+}
+.battle-spin2-left{
+    animation: battle-spin2-left 0.8s;
+}
+
+.glob-orb{
+    position: absolute;
+    width: 32px;
+    height: 32px;
+}
+@keyframes battle-glob-right {
+    0% {transform: translate3d(0, 0, 0) scale(0.5); opacity: 1}
+    50% {transform: translate3d(10px, -80px, 0) scale(1); opacity: 1}
+    80% {transform: translate3d(149px, -47px, 0) scale(1); opacity: 1}
+    100% {transform: translate3d(149px, -47px, 0) scale(3); opacity: 0}
+}
+.battle-glob-right{
+    bottom: 73px;
+    left: 51px;
+    animation: battle-glob-right 1s forwards;
+}
+@keyframes battle-glob-left {
+    0% {transform: translate3d(0, 0, 0) scale(0.5); opacity: 1}
+    50% {transform: translate3d(-10px, -50px, 0) scale(1); opacity: 1}
+    80% {transform: translate3d(-174px, 47px, 0) scale(1); opacity: 1}
+    100% {transform: translate3d(-174px, 47px, 0) scale(3); opacity: 0}
+}
+.battle-glob-left{
+    left: 227px;
+    top: 56px;
+    animation: battle-glob-left 1s forwards;
 }
