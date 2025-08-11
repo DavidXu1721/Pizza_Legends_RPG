@@ -38,7 +38,7 @@ class Person extends GameObject {
             }
             
         }
-        // updateing the animations needs to be done here and not in the 'else' block, since for NPCs the behaviours are executed in the super.update, and therefore will never be reached when the NPC is walking 
+        // updating the animations needs to be done here and not in the 'else' block, since for NPCs the behaviours are executed in the super.update, and therefore will never be reached when the NPC is constantly walking 
         this.updateSpriteAnimations(state);
         
     }
