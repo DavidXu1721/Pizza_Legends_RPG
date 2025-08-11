@@ -1,18 +1,32 @@
+import KeyPressListener from "../KeyPressListener";
 import utils from "../utils";
 
+function setupCleanup(element /* the element that the eventListener is attached to*/, cleanUpCallback) {
+    const onAnimationEnd = () => {
+        cleanUpCallback()
+        skipAnimationBind.unbind();
+    }
+
+    element.addEventListener("animationend", onAnimationEnd, {once: true});
+
+    const skipAnimationBind = new KeyPressListener("Enter", () => {
+        //console.log("skipping animation animation")
+        cleanUpCallback()
+        element.removeEventListener("animationend", onAnimationEnd)
+        skipAnimationBind.unbind();
+    })
+}
 
 const BattleAnimations = {
     async spin1(event, onComplete) {
-        const element = event.caster.pizzaElement;
+        const pizzaElement = event.caster.pizzaElement;
         const animationClassName = event.caster.team === "player" ?
             "battle-spin1-right" : "battle-spin1-left"; // because the player is always on the left side
 
-        element.classList.add(animationClassName);
+        pizzaElement.classList.add(animationClassName);
 
         //Remove class when animation is fully complete
-        element.addEventListener("animationend", () => {
-            element.classList.remove(animationClassName);
-        }, {once: true});
+        setupCleanup(pizzaElement, () => {pizzaElement.classList.remove(animationClassName);})
 
         //Continue battle cycle right arounf when the pizzas collide
         await utils.wait(100);
@@ -20,19 +34,39 @@ const BattleAnimations = {
     },
 
     async spin2(event, onComplete) {
-        const element = event.caster.pizzaElement;
+        const pizzaElement = event.caster.pizzaElement;
         const animationClassName = event.caster.team === "player" ?
             "battle-spin2-right" : "battle-spin2-left"; // because the player is always on the left side
 
-        element.classList.add(animationClassName);
+        pizzaElement.classList.add(animationClassName);
 
         //Remove class when animation is fully complete
-        element.addEventListener("animationend", () => {
-            element.classList.remove(animationClassName);
-        }, {once: true});
+        setupCleanup(pizzaElement, () => {pizzaElement.classList.remove(animationClassName);})
 
         //Continue battle cycle right arounf when the pizzas collide
         await utils.wait(100);
+        onComplete();
+    },
+
+    async glob(event, onComplete) {
+        const {caster} = event;
+        const globDiv =  document.createElement("div");
+        globDiv.classList.add("glob-orb");
+        globDiv.classList.add(caster.team === "player" ? "battle-glob-right": "battle-glob-left");
+        
+        globDiv.innerHTML = (`
+            <svg viewBox="0 0 32 32" width="32" height="32">
+                <circle cx="16" cy="16" r="16" fill="${event.color}" />  
+            <svg>
+        `)
+        
+        //Remove element when the animation is complete
+        setupCleanup(globDiv, () => {globDiv.remove()})
+
+        //Add to scene
+        document.querySelector(".Battle").appendChild(globDiv);
+
+        await utils.wait(820);
         onComplete();
     }
 }
