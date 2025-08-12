@@ -3,6 +3,7 @@ import useScript from '../hooks/useScript'
 import '../styles/TextMessage.css'
 import '../styles/SceneTransition.css'
 import '../styles/Battle.css'
+import '../styles/KeyboardMenu.css'
 
 function PizzaLegendsGame(props) {
   useScript('./src/scripts/init.js', ['defer'], 'module')
