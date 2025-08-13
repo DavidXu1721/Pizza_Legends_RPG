@@ -25,55 +25,57 @@ class Overworld {
     }
 
     async loadMapData(mapName) {
+        let data;
+
         try {
-            const data = await this.getMapData()
-            
-            const mapData = data[mapName];
-            console.log("Turning the gameobject configs into objects");
-            Object.keys(mapData.gameObjects).forEach(key => {
-                if (key === "_comment"){
-                    delete mapData.gameObjects[key];
-                    return
-                }
-
-                mapData.gameObjects[key].id = key // this saves us from having to manually define the keys, since we aren't going to be able to access the "real" key from inside of the person
-
-                let newObject
-
-                switch (mapData.gameObjects[key].type){
-                    case "Person":
-                        console.log("Initiating Person GameObject");
-                        newObject = new Person(mapData.gameObjects[key]);
-                        break;
-                    default:
-                        console.log("No type specified, initiating Game Object");
-                        newObject = new GameObject(mapData.gameObjects[key]);
-                }
-
-                mapData.gameObjects[key] = newObject;
-            });
-
-            console.log("Processing the walls data");
-            const wallDict = {}
-            mapData.walls.forEach(coords => {
-                wallDict[utils.asGridCoords(coords[0], coords[1])] = true
-            })
-            mapData.walls = wallDict;
-
-            console.log("Processing the cutsceneSpaces data");
-            const cutsceneSpacesDict = {}
-            mapData.cutsceneSpaces.forEach(spaceData =>{
-                const key = utils.asGridCoords(spaceData.coords[0], spaceData.coords[1])
-
-                cutsceneSpacesDict[key] = spaceData.data
-            })
-            mapData.cutsceneSpaces = cutsceneSpacesDict;
-
-            console.log(mapData);
-            return new OverworldMap({...mapData, elementId: this.elementId});
+            data = await this.getMapData()
         } catch (error) {
             console.error("Error loading map:", error);
         }
+
+        const mapData = data[mapName];
+        console.log("Turning the gameobject configs into objects");
+        Object.keys(mapData.gameObjects).forEach(key => {
+            if (key === "_comment"){
+                delete mapData.gameObjects[key];
+                return
+            }
+
+            mapData.gameObjects[key].id = key // this saves us from having to manually define the keys, since we aren't going to be able to access the "real" key from inside of the person
+
+            let newObject
+
+            switch (mapData.gameObjects[key].type){
+                case "Person":
+                    console.log("Initiating Person GameObject");
+                    newObject = new Person(mapData.gameObjects[key]);
+                    break;
+                default:
+                    console.log("No type specified, initiating Game Object");
+                    newObject = new GameObject(mapData.gameObjects[key]);
+            }
+
+            mapData.gameObjects[key] = newObject;
+        });
+
+        console.log("Processing the walls data");
+        const wallDict = {}
+        mapData.walls.forEach(coords => {
+            wallDict[utils.asGridCoords(coords[0], coords[1])] = true
+        })
+        mapData.walls = wallDict;
+
+        console.log("Processing the cutsceneSpaces data");
+        const cutsceneSpacesDict = {}
+        mapData.cutsceneSpaces.forEach(spaceData =>{
+            const key = utils.asGridCoords(spaceData.coords[0], spaceData.coords[1])
+
+            cutsceneSpacesDict[key] = spaceData.data
+        })
+        mapData.cutsceneSpaces = cutsceneSpacesDict;
+
+        console.log(mapData);
+        return new OverworldMap({...mapData, elementId: this.elementId});
     }
 
     startMap(map){
