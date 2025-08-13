@@ -45,10 +45,6 @@ class BattleEvent {
         let messageEvent
 
         let stateChangeTarget = this.event.onCaster ? caster : target;
-        // if the move's targetType is friendly, we set the stateChangeTarget to the caster (may expand functionality in the future)
-        if (action.targetType === "friendly") {
-            stateChangeTarget = caster;
-        }
 
         if (damage) {
             //modify the target to have less HP
