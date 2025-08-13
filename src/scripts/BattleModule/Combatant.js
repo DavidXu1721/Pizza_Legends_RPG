@@ -1,3 +1,5 @@
+import utils from "../utils";
+
 class Combatant {
     constructor(config, battle) {
         Object.keys(config).forEach(key => {
@@ -73,24 +75,70 @@ class Combatant {
         //Update status
         const statusElement = this.hudElement.querySelector(".Combatant_status");
         if (this.status) {
-            statusElement.innerText = this.status.type;
+            statusElement.setAttribute("data-status", this.status.type);
+            statusElement.innerText = `${this.status.type} | ${this.status.expiresIn}`;
             statusElement.style.display = "block";
         } else {
+            statusElement.setAttribute("data-status", null);
             statusElement.innerText = "";
             statusElement.style.display = "none";
         }
+    }
+
+    getReplacedEvents(action) {
+        // so basically, the "success" array of the action is the default array, and any extra conditions replace them, based on the position of each event, 
+        let resultEvents = action.success
+        console.log(resultEvents)
+
+        if (this.status?.type === "clumsy"){
+            resultEvents = resultEvents.map((value, index) => {
+                return action.inClumsy[index] !== undefined ? action.inClumsy[index] : value
+            })
+            console.log(resultEvents)
+            
+            if (utils.getRNG(0.3)) { // the combatant failed the move
+                
+                resultEvents.splice(action.inClumsy.length, Infinity, 
+                    //{"type": "animation", "animation": "clumsyFlop"},
+                    {type: "textMessage", text: `${this.name} flops on its face!`}
+                )
+            } // else the combatant succeeds, do need to do anything further
+        } 
+        
+        return resultEvents
     }
 
     getPostEvents() {
 
         if (this.status?.type === "saucy") {
             return[
-                {type: "textMessage", text: "Feelin' saucy!"},
+                {type: "textMessage", text: `${this.name} is feelin' saucy!`},
                 {type: "stateChange", recover: 5, onCaster: true}
             ]
         }
 
         return []
+    }
+
+    decrementStatus() {
+        if (this.status?.expiresIn > 0) {
+            this.status.expiresIn -= 1;
+            if (this.status.expiresIn === 0){
+
+                const expiredStatus = this.status; // we are setting the status to null, so we need to remember it for the text message
+                
+                this.update({
+                    status: null
+                })
+
+                return{
+                    type: "textMessage",
+                    text: `${this.name} is no longer ${expiredStatus.type}!`
+                }
+            } else {
+                this.update() // this is done so that the expires in label ticks down
+            }
+        } 
     }
 
     init(container){
