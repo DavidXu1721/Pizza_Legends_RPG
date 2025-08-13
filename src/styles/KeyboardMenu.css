@@ -2,8 +2,12 @@
     border: 1px solid var(--border-color);
     background: var(--menu-background);
     position: absolute;
+    max-height: 102px;
+    
+    overflow-y: auto;
+    scrollbar-gutter: stable;
 
-    button{
+    .menu-button{
         display: flex;
         align-items: center;
         width: 100%;
@@ -19,35 +23,59 @@
         font-size: 10px;
     }
     
-    button:focus{
+    .menu-button.focus{
         background: var(--menu-selected-background);
         outline: 0 /*to prevent that annoying black outline that comes default for buttons*/
     }
 
-    button:disabled{
+    .menu-button.disabled{
+        color: grey;
         background: none;
     }
 
     .option {
         position: relative;
     }
-    
+
     .option .right {
         position: absolute;
         right: 0;
         top: 0;
         bottom: 0;
     }
+    
+}
+
+/* Scrollbar styles below
+/* width */
+.KeyboardMenu::-webkit-scrollbar {
+    width: 4px;
+}
+/* Track */
+.KeyboardMenu::-webkit-scrollbar-track {
+    background: none; 
+}
+
+/* Handle */
+.KeyboardMenu::-webkit-scrollbar-thumb {
+    background: var(--menu-scrollbar-background); 
+    border-radius: 2px;
+}
+
+/* Handle on hover */
+.KeyboardMenu::-webkit-scrollbar-thumb:hover {
+    background: var(--menu-hover-color); 
 }
 
 .DescriptionBox {
     position: absolute;
     bottom: 0;
     left: 0;
-    right: 0;
+    right: 140px;
     color: var(--menu-font-color);
     border-top: 1px solid var(--border-color);
     background-color: var(--menu-background);
+    height: fit-content;
     padding: 2px;
 }
 .DescriptionBox p {
