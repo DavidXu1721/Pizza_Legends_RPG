@@ -74,6 +74,7 @@ class Combatant {
 
         //Update status
         const statusElement = this.hudElement.querySelector(".Combatant_status");
+        
         if (this.status) {
             statusElement.setAttribute("data-status", this.status.type);
             statusElement.innerText = `${this.status.type} | ${this.status.expiresIn}`;
@@ -88,9 +89,9 @@ class Combatant {
     getReplacedEvents(action) {
         // so basically, the "success" array of the action is the default array, and any extra conditions replace them, based on the position of each event, 
         let resultEvents = action.success
-        console.log(resultEvents)
 
-        if (this.status?.type === "clumsy"){
+        // the way i have it set up, if the action's respective status section is === null, then that means that the action is completely uneffected and so we can skip it
+        if (this.status?.type === "clumsy" && action.inClumsy !== null){ 
             resultEvents = resultEvents.map((value, index) => {
                 return action.inClumsy[index] !== undefined ? action.inClumsy[index] : value
             })
