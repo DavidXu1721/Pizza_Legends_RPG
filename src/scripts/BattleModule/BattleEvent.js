@@ -1,6 +1,7 @@
 import TextMessage from "../TextMessage";
 import utils from "../utils";
 import BattleAnimations from "./BattleAnimations";
+import ReplacementMenu from "./ReplacementMenu";
 import SubmissionMenu from "./SubmissionMenu";
 
 class BattleEvent {
@@ -55,6 +56,8 @@ class BattleEvent {
             //start blinking
             target.pizzaElement.classList.add("battle-damage-blinking");
 
+            this.battle.turnCycle.onNewEvent({type: "animation", animation: "hurt", target: target})
+
             messageEvent = {
                 ...{type: "textMessage", text: `${damage} damage dealt to {TARGET}`, config: {isInstant: true, manualProgress: false, autoProgressEvent: "statusChangeAutoProgress"}},
                 caster,
@@ -80,7 +83,7 @@ class BattleEvent {
         }
 
         if (status) {
-            if (status.type === "reset"){
+            if (status === "reset"){
                 stateChangeTarget.update({
                     status: null
                 })
@@ -120,9 +123,14 @@ class BattleEvent {
     }
 
     submissionMenu(resolve) {
+        const {caster} = this.event;
         const menu = new SubmissionMenu({
-            caster: this.event.caster,
+            caster: caster,
             enemy: this.event.enemy,
+            items: this.battle.items,
+            replacements: Object.values(this.battle.combatants).filter(c => {
+                return c.id !== caster.id && c.team === caster.team && c.hp > 0
+            }),
             onComplete: submission => {
 
                 // submission { what move to use, who to use it on }
@@ -131,6 +139,36 @@ class BattleEvent {
         })
 
         menu.init( this.battle.element )
+    }
+
+    replacementMenu(resolve) {
+        const menu = new ReplacementMenu({
+            replacements: Object.values(this.battle.combatants).filter(c => {
+                return c.team === this.event.team && c.hp > 0
+            }),
+            onComplete: replacement => {
+                resolve(replacement)
+            }
+        })
+
+        menu.init( this.battle.element )
+    }
+
+    async replace(resolve) {
+        const {replacement} = this.event;
+
+        // Clear out the old combatant
+        const prevCombatant = this.battle.combatants[this.battle.activeCombatants[replacement.team]];
+        this.battle.activeCombatants[replacement.team] = null;
+        prevCombatant.update();
+
+        await utils.wait(400);
+        // Bring the new pizza in
+        this.battle.activeCombatants[replacement.team] = replacement.id;
+        replacement.update();
+        await utils.wait(400);
+        
+        resolve();
     }
 
     animation(resolve) {

@@ -1,7 +1,7 @@
 class TurnCycle {
     constructor({ battle, onNewEvent}){
         this.battle = battle;
-        this.onNewEvent = onNewEvent;
+        this.onNewEvent = onNewEvent; // this is from the Battle Class and makes a BattleEvent on every call
         this.currentTeam = "player"; // or "enemy"
     }
 
@@ -20,6 +20,25 @@ class TurnCycle {
             enemy
         });
 
+        //Stop here if we are replacing the current Pizza with another one from our team
+        if (submission.replacement) {
+            await this.onNewEvent({
+                type: "replace",
+                replacement: submission.replacement
+            })
+            await this.onNewEvent({
+                type: "textMessage",
+                text: `Go get 'em, ${submission.replacement.name}!`
+            })
+            this.nextTurn();
+            return;
+        }
+
+        // other wise, we can process the rest of the move as usual, typically a replacement will use up your turn, so we are 
+        if (submission.instanceId) { // this means that an item was used so we must remove it
+            this.battle.items = this.battle.items.filter(item => item.instanceId !== submission.instanceId)
+        }
+
         const resultingEvents = caster.getReplacedEvents(submission.action);
 
         for (let i=0; i<resultingEvents.length; i++) {
@@ -32,6 +51,44 @@ class TurnCycle {
             }
 
             await this.onNewEvent(event);
+        }
+
+        // Did the target die?
+        const targetDead = submission.target.hp <= 0;
+        if (targetDead) {
+            await this.onNewEvent({
+                type: "textMessage", text: `${submission.target.name} is ruined!`
+            })
+        }
+
+        // Do we have a winning team?
+        const winner = this.getWinningTeam();
+        if (winner) {
+            await this.onNewEvent({
+                type: "textMessage",
+                text: "Winner!"
+            })
+            // END THE BATTLE -> TODO
+            return;
+        }
+            
+
+        // WE have a dead target, but still no winner, so bring in a replacement
+        if (targetDead) {
+            const newReplacement = await this.onNewEvent({
+                type: "replacementMenu",
+                team: submission.target.team
+            })
+            await this.onNewEvent({
+                type: "replace",
+                replacement: newReplacement
+            })
+            await this.onNewEvent({
+                type: "textMessage",
+                text: `${newReplacement.name} takes its place!`
+            })
+            this.nextTurn();
+            return;
         }
 
         // Handle any post-submission events, status effect updates, etc
@@ -54,9 +111,28 @@ class TurnCycle {
             await this.onNewEvent(expiredEvent)
         }
         
-        // Switch the current team ant do another turn
-        this.currentTeam = (this.currentTeam === "player") ? "enemy" : "player";
+        // Switch the current team and do another turn
+        this.nextTurn();
+    }
+
+    nextTurn() {
+        this.currentTeam = this.currentTeam === "player" ? "enemy" : "player";
         this.turn();
+    }
+
+    getWinningTeam() {
+        let aliveTeams = {};
+        Object.values(this.battle.combatants).forEach(c => {
+            if (c.hp > 0) {
+                aliveTeams[c.team] = true;
+            }
+        })
+
+        // I might want to add a case if both teams lose at the same time, but I feel like a draw should count as a loss in this game
+        if (!aliveTeams["player"]) {return "enemy"}
+        if (!aliveTeams["enemy"]) {return "player"}
+        // If the code reaches here then there is no winning team
+        return null;
     }
 
     async init() {
