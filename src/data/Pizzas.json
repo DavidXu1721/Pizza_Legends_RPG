@@ -10,13 +10,23 @@
     "Pizzas": {
         "s001": {
             "name": "Slice Samurai",
+            "description": "A spicy pizza with the sharpest sauce around",
             "type": "spicy",
             "src": "./src/assets/characters/pizzas/s001.png",
             "icon": "./src/assets/icons/spicy.png",
-            "actions": ["damage1"]
+            "actions": ["damage1", "damage2", "saucyStatus", "clumsyStatus"]
+        },
+        "s002": {
+            "name": "Bacon Brigade",
+            "description": "A crispy troop charging with smoky power",
+            "type": "spicy",
+            "src": "./src/assets/characters/pizzas/s002.png",
+            "icon": "./src/assets/icons/spicy.png",
+            "actions": ["damage1", "saucyStatus2", "clumsyStatus"]
         },
         "v001": {
             "name": "Call Me Kale",
+            "description": "A crunchy green hero of health.",
             "type": "veggie",
             "src": "./src/assets/characters/pizzas/v001.png",
             "icon": "./src/assets/icons/veggie.png",
@@ -24,6 +34,7 @@
         },
         "f001": {
             "name": "Portobello Express",
+            "description": "Umami goodness in a rich earthy form",
             "type": "fungi",
             "src": "./src/assets/characters/pizzas/f001.png",
             "icon": "./src/assets/icons/fungi.png",
