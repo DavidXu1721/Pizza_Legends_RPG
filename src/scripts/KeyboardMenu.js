@@ -9,7 +9,7 @@ class KeyboardMenu {
     }
 
     focusButton(targetIndex) {
-        if (targetIndex === undefined) { // if no index was given, then don't do anything, done when you try to go down when already on the buttom choice
+        if (targetIndex === undefined || Object.is(targetIndex , NaN)) { // if no index was given, then don't do anything, done when you try to go down when already on the buttom choice
             return;
         }
 
@@ -54,7 +54,7 @@ class KeyboardMenu {
 
             button.addEventListener("click", () => { // be default pressing Enter when a button is focused is the same as a click, so no need ot make a Enter key bind
                 if (button.classList.contains("disabled")) {// if the button is disabled we stop the function, 
-
+                    return
                 }
                 
                 const chosenOption = this.options[ Number(button.dataset.button) ];
@@ -112,7 +112,7 @@ class KeyboardMenu {
             const nextButton = Array.from(this.element.querySelectorAll(".menu-button[data-button]")).reverse().find(el => {
                 return el.dataset.button < currentButtonIndex && !el.classList.contains("disabled");
             })
-            
+
             this.focusButton(Number(nextButton?.dataset.button)); //if there is no button then we are at the bottom of the valid buttons, so don't do anything
         })
         this.downBind = new KeyPressListener("ArrowDown", () => {
@@ -120,13 +120,16 @@ class KeyboardMenu {
 
             // we use a find function to find the first button with the following conditions (it's index is greater than the current button AND it's not disabled)
             const nextButton = Array.from(this.element.querySelectorAll(".menu-button[data-button]")).find(el => {
-                console.log(el.dataset.button > currentButtonIndex && !el.classList.contains("disabled"));
                 return el.dataset.button > currentButtonIndex && !el.classList.contains("disabled");
             })
             // types really bit me in the ass here
             this.focusButton(Number(nextButton?.dataset.button)); //if there is no button then we are at the bottom of the valid buttons, so don't do anything
         })
         this.enterBind = new KeyPressListener("Enter", () => {
+            if (this.prevFocus.classList.contains("disabled")) {// if the button is disabled we stop the function, in this case, we shouldn't be able to "click" a disabled button with the Enter key, 
+                console.warn()
+                return
+            }
             const chosenOption = this.options[ Number(this.prevFocus.dataset.button) ];
             chosenOption.handler();
         })
