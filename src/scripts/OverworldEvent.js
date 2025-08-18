@@ -7,6 +7,17 @@ class OverworldEvent {
     constructor({map, event}) {
         this.map = map;
         this.event = event;
+
+        this._enemyDataCache = null // internal cache of the enemy data
+    }
+
+    async _getEnemyData() {
+        if (!this._enemyDataCache) {
+            const response = await fetch("./src/data/Enemies.json");
+            this._enemyDataCache = await response.json();
+            console.log("Successfully retrieved Enemies Data: "+ this._enemyDataCache);
+        }
+        return this._enemyDataCache
     }
 
     stand(resolve) {
@@ -77,8 +88,9 @@ class OverworldEvent {
         })
     }
 
-    battle (resolve) {
+    async battle (resolve) {
         const battle = new Battle({
+            enemy: (await this._getEnemyData()).Enemies[this.event.enemyId],
             onComplete: () => {
                 resolve();
             }
