@@ -1,0 +1,32 @@
+.test-pizza-container{
+    position: relative;
+    width: 100px;
+    height: 100px;
+    background-color: rgb(255, 228, 196);
+    image-rendering: pixelated;
+
+    .pizza{
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) ;
+        background: url(./src/assets/characters/pizzas/pizza-shadow.png) no-repeat no-repeat;
+        background-size: contain;
+    }
+    
+    .overlay{
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) ;
+        background-color: rgb(255, 0, 0);
+        mask-image: url('./src/assets/characters/pizzas/s002.png');
+        mask-size: contain;
+        mask-repeat: no-repeat;
+    }  
+    
+}
