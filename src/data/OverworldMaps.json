@@ -25,7 +25,7 @@
             {
               "events":[
                 {"type":"textMessage", "text": "I'm busy...", "faceHero": "npcA"},
-                {"type":"textMessage", "text": "Go away!"}
+                {"type":"battle", "enemyId": "beth"}
               ]
             }
           ]
@@ -34,15 +34,15 @@
           "type": "Person",
           "x": 8,
           "y": 5,
-          "src": "/src/assets/characters/people/npc2.png",
+          "src": "/src/assets/characters/people/erio.png",
           "behaviourLoop": [
             
           ],
           "talking": [
             {
               "events":[
-                {"type":"textMessage", "text": "I'm busy...", "faceHero": "npcB"},
-                {"type":"textMessage", "text": "Go away!"}
+                {"type":"textMessage", "text": "Bahahaha!", "faceHero": "npcB"},
+                {"type":"battle", "enemyId": "erio"}
               ]
             }
           ]

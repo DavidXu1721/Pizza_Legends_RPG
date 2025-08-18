@@ -1,16 +1,21 @@
 class TurnCycle {
-    constructor({ battle, onNewEvent}){
+    constructor({ battle, onNewEvent, onWinner }){
         this.battle = battle;
         this.onNewEvent = onNewEvent; // this is from the Battle Class and makes a BattleEvent on every call
+        this.onWinner = onWinner;
         this.currentTeam = "player"; // or "enemy"
     }
 
     async turn(){
         //Get the caster
         const casterId = this.battle.activeCombatants[this.currentTeam];
-        const caster = this.battle.combatants[casterId];
+        //console.log(casterId);
+        
+        const caster = await this.battle.combatants[casterId];
+        //console.log(caster);
+        
         const enemyId = this.battle.activeCombatants[caster.team === "player" ? "enemy" : "player"];
-        const enemy = this.battle.combatants[enemyId];
+        const enemy = await this.battle.combatants[enemyId];
 
         //Handle the submission of next move
 
@@ -35,7 +40,12 @@ class TurnCycle {
         }
 
         // other wise, we can process the rest of the move as usual, typically a replacement will use up your turn, so we are 
-        if (submission.instanceId) { // this means that an item was used so we must remove it
+        if (submission.instanceId) { // this indicates that an item/consumable was used
+
+            // Add to list to persist to player state later
+            this.battle.usedInstanceIds[submission.instanceId] = true;
+
+            // Removing item from battle state
             this.battle.items = this.battle.items.filter(item => item.instanceId !== submission.instanceId)
         }
 
@@ -59,6 +69,24 @@ class TurnCycle {
             await this.onNewEvent({
                 type: "textMessage", text: `${submission.target.name} is ruined!`
             })
+
+            if (submission.target.team === "enemy"){ // there's no point in giving the enemy exp
+
+                const playerActivePizzaId = this.battle.activeCombatants.player;
+                const playerActivePizza = this.battle.combatants[playerActivePizzaId];
+                const xpAwarded = submission.target.givesXp;
+
+                await this.onNewEvent({
+                    type: "giveXp",
+                    xp: xpAwarded,
+                    combatant: playerActivePizza
+                })
+                await this.onNewEvent({
+                    type: "textMessage", 
+                    text: `${playerActivePizza.name} gained ${xpAwarded} xp!`
+                })
+            }
+            
         }
 
         // Do we have a winning team?
@@ -68,7 +96,7 @@ class TurnCycle {
                 type: "textMessage",
                 text: "Winner!"
             })
-            // END THE BATTLE -> TODO
+            this.onWinner(winner)
             return;
         }
             

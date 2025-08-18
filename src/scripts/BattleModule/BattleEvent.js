@@ -113,6 +113,10 @@ class BattleEvent {
             utils.emitEvent(messageEvent.config.autoProgressEvent);
         }
 
+        // update Team components
+        this.battle.playerTeam.update();
+        this.battle.enemyTeam.update();
+
         // stop blinking, if the action didn't involve damage, then this doesn't mess anything up as we are removing nothing, the 600 ms timer still makes the state change event take some time
         target.pizzaElement.classList.remove("battle-damage-blinking");
 
@@ -167,8 +171,36 @@ class BattleEvent {
         this.battle.activeCombatants[replacement.team] = replacement.id;
         replacement.update();
         await utils.wait(400);
+
+        // update Team components
+        this.battle.playerTeam.update();
+        this.battle.enemyTeam.update();
         
         resolve();
+    }
+
+    giveXp(resolve) {
+        let xpRemaining = this.event.xp;
+        const {combatant} = this.event;
+        const step = () => {
+            if (xpRemaining > 0) {
+                xpRemaining -= 1;
+                combatant.xp += 1;
+
+                //Check if we hit a level up point
+                if (combatant.xp >= combatant.maxXp) {
+                    combatant.xp = combatant.xp - combatant.maxXp;
+                    combatant.maxXp = 100;
+                    combatant.level += 1;
+                }
+
+                combatant.update();
+                requestAnimationFrame(step);
+                return;
+            } 
+        }
+        resolve();
+        requestAnimationFrame(step)
     }
 
     animation(resolve) {

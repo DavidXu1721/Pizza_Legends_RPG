@@ -5,6 +5,8 @@ class Combatant {
         Object.keys(config).forEach(key => {
             this[key] = config[key];
         })
+        // if hp was not defined default it to maxHp
+        this.hp = typeof(this.hp) === "undefined" ? this.maxHp : this.hp;
         this.battle = battle;
     }
 
@@ -19,6 +21,10 @@ class Combatant {
 
     get isActive() {
         return this.battle.activeCombatants[this.team]===this.id
+    }
+
+    get givesXp() {
+        return this.level * 20;
     }
 
     createElement() {
@@ -45,11 +51,20 @@ class Combatant {
             
         `)
 
-        this.pizzaElement = document.createElement("img");
+        this.pizzaElement = document.createElement("div");
         this.pizzaElement.classList.add("Pizza");
-        this.pizzaElement.setAttribute("src", this.src );
-        this.pizzaElement.setAttribute("alt", this.name );
         this.pizzaElement.setAttribute("data-team", this.team );
+
+        this.pizzaElement.innerHTML = (`
+            <img class="sprite" src="${this.src}" alt="${this.name}" />
+            <div class="filter"> </div>
+        `)
+
+        // this.pizzaElement = document.createElement("img");
+        // this.pizzaElement.classList.add("Pizza");
+        // this.pizzaElement.setAttribute("src", this.src );
+        // this.pizzaElement.setAttribute("alt", this.name );
+        // this.pizzaElement.setAttribute("data-team", this.team );
 
         this.hpFills = this.hudElement.querySelectorAll(".Combatant_life-container > rect");
         this.xpFills = this.hudElement.querySelectorAll(".Combatant_xp-container > rect")
@@ -61,7 +76,7 @@ class Combatant {
             this[key] = changes[key]
         });
 
-        //Update active flag to show the correct pizza & hud
+        //Update active flag to show the correct pizza & hud, in the CSS if data-active === false, then the opacity is 0
         this.hudElement.setAttribute("data-active", this.isActive);
         this.pizzaElement.setAttribute("data-active", this.isActive);
 
@@ -143,10 +158,20 @@ class Combatant {
     }
 
     init(container){
+        console.log("asssssssss")
         this.createElement();
         container.appendChild(this.hudElement);
         container.appendChild(this.pizzaElement);
         this.update();
+        // setInterval(() => {
+        //     if (this.pizzaElement.dataset.active && this.team === "player") {
+        //         const d = new Date();
+        //         let time = d.getTime();
+        //         console.log(time)
+        //         console.log(utils.getAbsoluteOffsetFromRelative(this.pizzaElement))
+        //     }
+            
+        // }, 10)
     }
 }
 

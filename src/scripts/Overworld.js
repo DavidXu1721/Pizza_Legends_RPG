@@ -156,29 +156,31 @@ class Overworld {
         
         // startGameLoop starts after the cutscene to prevent any initial behaviours from running
        
-        this.map.startCutscene([
-            {type: "battle"}
-            //{type: "changeMap", newMap: "Kitchen"},
-            //{type: "textMessage", text: "This is the very first message!"},
-            // {target: "hero", type: "walk", direction: "down"},
-            // {target: "hero", type: "walk", direction: "down"},
-            // {target: "npcA", type: "walk", direction: "up"},
-            // {target: "npcA", type: "walk", direction: "left"},
-            // {target: "hero", type: "stand", direction: "right", time: 200},
-            // {type:"textMessage", text: "WHY HELLO THERE!"},
-            // {target: "npcB", type: "stand", direction: "up", time: 200},
-            // {target: "npcB", type: "stand", direction: "left", time: 800},
-            // {target: "npcB", type: "stand", direction: "down", time: 200},
-            // {target: "npcB", type: "stand", direction: "right", time: 900},
-            // {target: "hero", type: "walk", direction: "down"},
-            // {target: "npcB", type: "walk", direction: "right"},
-            // {target: "hero", type: "walk", direction: "down"},
-            // {target: "npcB", type: "walk", direction: "right"},
-            // {target: "npcB", type: "walk", direction: "right"},
-            // {target: "npcA", type: "walk", direction: "left"},
-            // {target: "npcA", type: "walk", direction: "left"},
-            // {target: "npcA", type: "stand", direction: "up", time: 800},
-        ])
+        // this.map.startCutscene([
+        //     {type: "battle", enemyId: "erio"}
+        //     //{type: "changeMap", newMap: "Kitchen"},
+        //     //{type: "textMessage", text: "This is the very first message!"},
+        //     // {target: "hero", type: "walk", direction: "down"},
+        //     // {target: "hero", type: "walk", direction: "down"},
+        //     // {target: "npcA", type: "walk", direction: "up"},
+        //     // {target: "npcA", type: "walk", direction: "left"},
+        //     // {target: "hero", type: "stand", direction: "right", time: 200},
+        //     // {type:"textMessage", text: "WHY HELLO THERE!"},
+        //     // {target: "npcB", type: "stand", direction: "up", time: 200},
+        //     // {target: "npcB", type: "stand", direction: "left", time: 800},
+        //     // {target: "npcB", type: "stand", direction: "down", time: 200},
+        //     // {target: "npcB", type: "stand", direction: "right", time: 900},
+        //     // {target: "hero", type: "walk", direction: "down"},
+        //     // {target: "npcB", type: "walk", direction: "right"},
+        //     // {target: "hero", type: "walk", direction: "down"},
+        //     // {target: "npcB", type: "walk", direction: "right"},
+        //     // {target: "npcB", type: "walk", direction: "right"},
+        //     // {target: "npcA", type: "walk", direction: "left"},
+        //     // {target: "npcA", type: "walk", direction: "left"},
+        //     // {target: "npcA", type: "stand", direction: "up", time: 800},
+        // ])
+
+        
 
         this.startGameLoop();
     }
