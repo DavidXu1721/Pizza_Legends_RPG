@@ -1,11 +1,12 @@
 import KeyPressListener from "./KeyPressListener";
 
 class KeyboardMenu {
-    constructor() {
+    constructor(config={}) {
         this.options = []; //set by updater method
-        this.up = null;
-        this.down = null;
+        this.upBind = null;
+        this.downBind = null;
         this.prevFocus = null; // the last button that was focused, useful for going up and down menus
+        this.descriptionContainer = config.descriptionContainer || null; // this is to specify which element to append the description too, default is the container passed in this.init()
     }
 
     focusButton(targetIndex) {
@@ -58,8 +59,8 @@ class KeyboardMenu {
                 }
                 
                 const chosenOption = this.options[ Number(button.dataset.button) ];
-                console.log("CLICKED");
-                console.log(chosenOption);
+                // console.log("CLICKED");
+                // console.log(chosenOption);
                 chosenOption.handler();
             })
             button.addEventListener("mouseenter", () => {
@@ -98,11 +99,12 @@ class KeyboardMenu {
         //Clean up bindings
         this.upBind.unbind();
         this.downBind.unbind();
+        this.enterBind.unbind();
     }
     
     init(container) {
         this.createElement();
-        container.appendChild(this.descriptionElement);
+        (this.descriptionContainer?.parent || container).appendChild(this.descriptionElement);
         container.appendChild(this.element);
 
         this.upBind = new KeyPressListener("ArrowUp", () => {
@@ -126,10 +128,13 @@ class KeyboardMenu {
             this.focusButton(Number(nextButton?.dataset.button)); //if there is no button then we are at the bottom of the valid buttons, so don't do anything
         })
         this.enterBind = new KeyPressListener("Enter", () => {
+            console.log("CLICK with enter");
+            
             if (this.prevFocus.classList.contains("disabled")) {// if the button is disabled we stop the function, in this case, we shouldn't be able to "click" a disabled button with the Enter key, 
                 console.warn()
                 return
             }
+            
             const chosenOption = this.options[ Number(this.prevFocus.dataset.button) ];
             chosenOption.handler();
         })
