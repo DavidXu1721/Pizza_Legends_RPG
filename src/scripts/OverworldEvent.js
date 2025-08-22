@@ -1,5 +1,7 @@
 import Battle from "./BattleModule/Battle";
+import PauseMenu from "./PauseMenu";
 import SceneTransition from "./SceneTransition";
+import playerState from "./State/PlayerState";
 import TextMessage from "./TextMessage";
 import utils from "./utils";
 
@@ -48,7 +50,7 @@ class OverworldEvent {
         }, {
             type: "walk",
             direction: this.event.direction,
-            retry: true // if the path is blocked, the person will attempt to move into the space on the nrext frame
+            retry: true // if the path is blocked, the person will attempt to move into the space on the next frame
         })
 
         //Set up a handle to complete when correct person is done walking, then resolve the event
@@ -67,6 +69,7 @@ class OverworldEvent {
         if (this.event.faceHero) {
             const obj = this.map.gameObjects[this.event.faceHero];
             // because the hero interacts with whatever is directly in front of him, we can just set the direction of the NPC to the oppiste of the hero's
+            
             obj.direction = utils.getOppositeDirection(this.map.gameObjects["hero"].direction);
         }
 
@@ -89,14 +92,41 @@ class OverworldEvent {
     }
 
     async battle (resolve) {
-        const battle = new Battle({
-            enemy: (await this._getEnemyData()).Enemies[this.event.enemyId],
+        const sceneTransition = new SceneTransition();
+        sceneTransition.init(document.querySelector("#" + this.map.elementId), async () => {
+            const battle = new Battle(this.map, {
+                enemy: (await this._getEnemyData()).Enemies[this.event.enemyId],
+                onComplete: (didWin) => {
+                    console.log(didWin);
+                    
+                    resolve(didWin ? "WON_BATTLE": "LOST_BATTLE");
+                }
+            })
+
+            battle.init(document.querySelector("#" + this.map.elementId));
+            sceneTransition.fadeOut()
+        })
+    }
+
+    pause(resolve) {
+        console.log("PAUSE NOW!");
+        this.map.isPaused = true;
+        const menu = new PauseMenu(this.map ,{
             onComplete: () => {
+                console.log("blah");
+                
                 resolve();
+                this.map.isPaused = false;
+                this.map.overworld.startGameLoop();
             }
         })
+        
+        menu.init(document.querySelector('#' + this.map.elementId));
+    }
 
-        battle.init(document.querySelector("#" + this.map.elementId));
+    addStoryFlag(resolve) {
+        playerState.storyFlags[this.event.flag] = true;
+        resolve();
     }
 
     init() {
