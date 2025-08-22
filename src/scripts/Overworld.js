@@ -4,6 +4,7 @@ import OverworldMap from "./OverworldMap";
 import DirectionInput from "./DirectionInput";
 import KeyPressListener from "./KeyPressListener";
 import utils from "./utils";
+import Hud from "./Hud";
 
 
 class Overworld {
@@ -13,6 +14,15 @@ class Overworld {
         this.ctx = this.canvas.getContext("2d");
         this.map = null
         this._mapDataCache = null; // internal cache of the map data
+        this._pizzaDataCache = null; // internal cache of the pizza data
+    }
+
+    get pizzaData(){ // that way, whenever any thing needs the data, it an just get it
+        if (this._pizzaDataCache) {
+            return this._pizzaDataCache
+        } else {
+            console.error("ERROR: pizzaDataCache is empty!");
+        }
     }
 
     async getMapData() {
@@ -22,6 +32,15 @@ class Overworld {
             console.log("Successfully retrieved data: "+ JSON.stringify(this._mapDataCache));
         }
         return this._mapDataCache;
+    }
+
+    async getPizzaData() {
+        if (!this._pizzaDataCache) {
+            const response = await fetch("./src/data/Pizzas.json");
+            this._pizzaDataCache = await response.json();
+            console.log("Successfully retrieved Pizzas Data: "+ this._pizzaDataCache);
+        }
+        return this._pizzaDataCache
     }
 
     async loadMapData(mapName) {
@@ -75,7 +94,7 @@ class Overworld {
         mapData.cutsceneSpaces = cutsceneSpacesDict;
 
         console.log(mapData);
-        return new OverworldMap({...mapData, elementId: this.elementId});
+        return new OverworldMap(this, {...mapData, elementId: this.elementId});
     }
 
     startMap(map){
@@ -118,10 +137,25 @@ class Overworld {
 
                 //Draw Upper Layer
                 this.map.drawUpperImage(this.ctx, cameraTarget);
+
+                if (this.map.isPaused) {
+                    this.ctx.fillStyle = "red";
+                    this.ctx.font = "20px Pixelify Sans";
+                    this.ctx.textAlign = "right";
+                    this.ctx.fillText("GAME PAUSED", utils.CONFIG_DATA.SCREEN_DIMENSIONS[0] * utils.CONFIG_DATA.GRID_SIZE + 9, 20.5);
+                } else if (this.map.isCutscenePlaying) {
+                    this.ctx.fillStyle = "red";
+                    this.ctx.font = "20px Pixelify Sans";
+                    this.ctx.textAlign = "right";
+                    this.ctx.fillText("CUTSCENE PLAYING", utils.CONFIG_DATA.SCREEN_DIMENSIONS[0] * utils.CONFIG_DATA.GRID_SIZE + 9, 20.5);
+                }
                 
             }
 
-            requestAnimationFrame(step);
+            if (!this.map.isPaused) {
+                requestAnimationFrame(step);
+            }
+            
         }
         step();
     }
@@ -131,6 +165,13 @@ class Overworld {
             // is there a person here to talk to?
             console.log("performing action")
             this.map.checkForActionCutscene()
+        })
+        new KeyPressListener("Escape", () => {
+            if (!this.map.isCutscenePlaying) {
+                this.map.startCutscene([
+                    {type: "pause"}
+                ])
+            }
         })
     }
 
@@ -145,6 +186,9 @@ class Overworld {
 
     async init() { 
         console.log("Hello from the Overworld", this);
+
+        this.hud = new Hud(this);
+        this.hud.init(document.querySelector('#'+ this.elementId));
 
         this.startMap(await this.loadMapData("DemoRoom"))
 
