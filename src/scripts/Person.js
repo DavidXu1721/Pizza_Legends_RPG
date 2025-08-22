@@ -23,6 +23,12 @@ class Person extends GameObject {
     update(state) {
         super.update(state);
         // console.log("Updating Person")
+
+        // if(this.id === "npcB"){
+        //     console.log(this.movingProgressRemaining)
+        //     console.log(!this.isTryingToMove); 
+        // }
+
         if (this.movingProgressRemaining > 0){
             this.updatePosition();
         } else {
@@ -45,18 +51,36 @@ class Person extends GameObject {
 
     startBehaviour(state, behaviour) {
         //console.log(behaviour)
-        this.direction = behaviour.direction;
+        // if (this.id === "npcB"){
+        //     console.log(behaviour)
+        // }
+
+        if (!this.map.isCutscenePlaying || !behaviour.isRetry) { // if a cutscene is playing AND the move is a retry, we disregard the direction of the move, since we are going to terminate it.
+            this.direction = behaviour.direction;
+        }
+       
         //console.log(this.id + ' ' + this.direction)
+
+        
         switch (behaviour.type) {
             case "walk":
                 // Stop here if the space is not free
                 if (state.map.detectObstruction(this.x, this.y, this.direction)){
                     // we only set isTryingToMove to true when behaviour.retry is true since if this was a player in a non-cutscene event, trying to walk in an obstruction will cause isTryingToMove to become true, and it will only be set to false on the next successful movement, NOT when you let go of the direction, this will cause the hero's walking animation to play in cutscenes
                     if (behaviour.retry) {
-                        this.isTryingToMove = true
-                        setTimeout(() => {
-                            this.startBehaviour(state, behaviour)
-                        }, 10) // tbh I don't like this, as it detachs from the main game loop
+                        // if the cutscene is playing, then don't continue trying to walk, otherwise, do
+                        if (!this.map.isCutscenePlaying) {
+                            this.isTryingToMove = true
+                            setTimeout(() => {
+                                this.startBehaviour(state, {...behaviour, isRetry: true})
+                            }, 10) // tbh I don't like this, as it detachs from the main game loop
+                        } else {
+                            this.isTryingToMove = false
+                            utils.emitEvent("PersonWalkingComplete", {
+                                targetId: this.id
+                            })
+                            this.behaviourLoopIndex -= 1;// we decrement the behaviourLoopIndex since we are going to have the continue retrying the move after the cutscene ends
+                        }
                     }
                     
                     
@@ -116,6 +140,10 @@ class Person extends GameObject {
                 this.sprite.setAnimation("walk_"+ this.direction); 
             }
         } else { // the person is an NPC
+            // if(this.id === "npcB") {
+            //     console.log(this.movingProgressRemaining)
+            //     console.log(this.isTryingToMove)
+            // }
             if (this.movingProgressRemaining === 0 && !this.isTryingToMove){
                 this.sprite.setAnimation("idle_" + this.direction);
             } else { 

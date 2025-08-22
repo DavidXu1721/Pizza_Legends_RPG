@@ -1,10 +1,11 @@
 import OverworldEvent from "./OverworldEvent";
+import playerState from "./State/PlayerState";
 import utils from "./utils";
 
 class OverworldMap {
-    constructor(config) {
+    constructor(overworld, config) {
         this.elementId = config.elementId;
-        this.overworld = null;
+        this.overworld = overworld;
         this.gameObjects = config.gameObjects;
         this.walls = config.walls || {}; // places the player can't walk through
         this.cutsceneSpaces = config.cutsceneSpaces || {}; // places that trigger cutscenes when walked on
@@ -17,19 +18,20 @@ class OverworldMap {
         this.upperImage.src = config.upperSrc;
 
         this.isCutscenePlaying = false;
+        this.isPaused = false;
     }
 
     drawLowerImage(ctx, cameraTarget) { // tbh this questionable naming convention will only be trouble some when we add more layers
         ctx.drawImage(this.lowerImage, 
-            utils.withGrid((utils.CONFIG_DATA.SCREEN_DIMENSIONS[0] - 1)/2) - cameraTarget.x, 
-            utils.withGrid((utils.CONFIG_DATA.SCREEN_DIMENSIONS[1] - 1)/2) - cameraTarget.y
+            Math.round(utils.withGrid((utils.CONFIG_DATA.SCREEN_DIMENSIONS[0] - 1)/2) - cameraTarget.x), 
+            Math.round(utils.withGrid((utils.CONFIG_DATA.SCREEN_DIMENSIONS[1] - 1)/2) - cameraTarget.y)
         )
     }
 
     drawUpperImage(ctx, cameraTarget) {
         ctx.drawImage(this.upperImage, 
-            utils.withGrid((utils.CONFIG_DATA.SCREEN_DIMENSIONS[0] - 1)/2) - cameraTarget.x, 
-            utils.withGrid((utils.CONFIG_DATA.SCREEN_DIMENSIONS[1] - 1)/2) - cameraTarget.y
+            Math.round(utils.withGrid((utils.CONFIG_DATA.SCREEN_DIMENSIONS[0] - 1)/2) - cameraTarget.x), 
+            Math.round(utils.withGrid((utils.CONFIG_DATA.SCREEN_DIMENSIONS[1] - 1)/2) - cameraTarget.y)
         )
     }
 
@@ -56,8 +58,10 @@ class OverworldMap {
             map: this
         })
 
+        let result
+
         if (!eventPart.target) { // if the event didn't specify a target then we don't need to wait for the behaviour to complete
-            await eventHandler.init();
+            result = await eventHandler.init();
         } else {
             
             // we need to wait for the character to finish their current behaviour event before doing the next one
@@ -69,12 +73,13 @@ class OverworldMap {
                 //console.log("behaviour complete");
                 //console.log(this.gameObjects[events[i].target].isBehaviourRunning + " should be false");
                 //console.log(eventHandler)
-                await eventHandler.init();
-                
+                result = await eventHandler.init();
             } catch (e) {
                 console.error(e);
             }
         }
+
+        return result;
     }
 
     async startCutscene(events) {
@@ -84,15 +89,23 @@ class OverworldMap {
         for (let i=0; i<events.length; i++) {
             const currentEvent = events[i];
 
+            let result 
+
             if (Array.isArray(currentEvent)){ // if the currentEvent is an array of events, that means that we are doing those events in parallel, and the cutscene will only continue when all the events are complete
+                // in retrospect this would end up being kind of crazy if we did pause and battle events in parallel, so...
+                // TODO: make safety nets to prevent that nonsense
                 await Promise.all(currentEvent.map(eventPart => {
                     return this.playEvent(eventPart)
                 }))
                 
             } else {
-                await this.playEvent(currentEvent)
+                result = await this.playEvent(currentEvent) // WHY IS THIS RETURNING UNDEFINED????
+                console.log(result);
             }
             
+            if (result === "LOST_BATTLE") {
+                break;
+            }
 
         }
 
@@ -108,7 +121,18 @@ class OverworldMap {
             return `${object.x},${object.y}`=== `${nextCoords[0]},${nextCoords[1]}`
         }); 
         if (!this.isCutscenePlaying && match && match.talking.length) { // if the detected object has a talking event, and we are not already in a cutscene, play the cutscene
-            this.startCutscene(match.talking[0].events)
+            
+            const relevantScenario = match.talking.find(scenario => {
+                return (scenario.requires || []).every(sf => {
+                    console.log(sf);
+                    console.log(playerState.storyFlags);
+                    
+                    
+                    return playerState.storyFlags[sf]
+                })
+            })
+
+            relevantScenario && this.startCutscene(relevantScenario.events)
         }
     }
 

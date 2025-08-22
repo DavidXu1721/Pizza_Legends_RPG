@@ -83,7 +83,7 @@ class Sprite {
         this.isLoaded && ctx.drawImage(this.image,
             frameX * 32, frameY * 32,
             32, 32,
-            x, y,
+            Math.round(x), Math.round(y),
             32, 32
         );
 

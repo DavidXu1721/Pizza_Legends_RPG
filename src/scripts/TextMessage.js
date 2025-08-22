@@ -7,7 +7,8 @@ class TextMessage {
         this.textSpeed = config.textSpeed || undefined;
         this.isInstant = config.isInstant || false; // determines if the typewriter effect will play or if all the text shows up immediately
         this.manualProgress = config.manualProgress !== undefined? config.manualProgress: true ; // determines if the player can manually progress using the enter key or "next" button
-        this.autoProgressEvent = config.autoProgressEvent || null; // this the event key, that if emited, will cause the textMessage to automatically progress
+        this.autoProgressEvent = config.autoProgressEvent || null; // this the event key, that when that event is emited, will cause the textMessage to automatically progress
+        // if this is not defined, when the text message must be manually progressed
         this.onComplete = onComplete;
         this.element = null;
     }
@@ -58,7 +59,7 @@ class TextMessage {
         if (this.typewriterText.isDone) {
             
             this.element.remove();
-            this.actionListener && this.actionListener.unbind();
+            this.actionListener?.unbind();
             this.onComplete();
         } else { // the text is not finished appearing
             

@@ -4,6 +4,7 @@ import Team from "./Team";
 import TurnCycle from "./TurnCycle";
 
 import playerState from "../State/PlayerState";
+import utils from "../utils";
 
 const ASSET_PATH = './src/assets'
 
@@ -13,11 +14,10 @@ const ASSET_PATH = './src/assets'
 // console.log("successfully retrieved Pizzas Data: "+ JSON.stringify(PIZZA_DATA));
 
 class Battle {
-    constructor({enemy, onComplete}) {
+    constructor(map, {enemy, onComplete}) {
+        this.map = map;
         this.enemy = enemy;
         this.onComplete = onComplete;
-
-        this._pizzaDataCache = null; // internal cache of the pizza data
 
         this.combatants = {
             // "player1": new Combatant({
@@ -82,29 +82,20 @@ class Battle {
         this.usedInstanceIds = {};
     }
 
-    async _getPizzaData() {
-        if (!this._pizzaDataCache) {
-            const response = await fetch("./src/data/Pizzas.json");
-            this._pizzaDataCache = await response.json();
-            console.log("Successfully retrieved Pizzas Data: "+ this._pizzaDataCache);
-        }
-        return this._pizzaDataCache
-    }
-
     async addCombatant(id, team, config) {
 
-        //Populate first active pizza
-        // we have to do this first because of how await works, otherwise turncycle JS would be reading null
-        // if the activeCombatant of that team was already set, when don't do anything, otherwise set it as the id given
-        // TODO: fix a bug where the active combatant picked could be a pizza with ZERO health
-        this.activeCombatants[team] = this.activeCombatants[team] || id
-
         this.combatants[id] = new Combatant({
-            ...this._pizzaDataCache.Pizzas[config.pizzaId],
+            ...this.map.overworld.pizzaData.Pizzas[config.pizzaId],
             ...config,
             team, 
             isPlayerControlled: team === "player"
         }, this)
+
+        //Populate first active pizza [NOTE: I guess not necessary anymore????]
+        // we have to do this first because of how await works, otherwise turncycle.js would be reading null
+        // If the activeCombatant of that team was already set, then don't do anything, otherwise set it as the id given
+        // TODO: fix a bug where the active combatant picked could be a pizza with ZERO health
+        this.activeCombatants[team] = this.activeCombatants[team] || this.combatants[id].hp > 0? id : null
         
     }
 
@@ -127,7 +118,7 @@ class Battle {
     async init(container) {
         
         // load and wait for the Pizza data
-        await this._getPizzaData();
+        await this.map.overworld.getPizzaData();
 
         //Dynamically add the Player team
         playerState.lineup.forEach(id => {
@@ -197,11 +188,14 @@ class Battle {
                     playerState.items = playerState.items.filter(item => {
                         return !this.usedInstanceIds[item.instanceId]
                     })
+
+                    //Send signal to update
+                    utils.emitEvent("PlayerStateUpdated")
                 }
 
                 // before calling onComplete, clean everything up
                 this.element.remove()
-                this.onComplete()
+                this.onComplete(winner === "player")
             }
         })
 

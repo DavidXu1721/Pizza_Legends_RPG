@@ -29,7 +29,7 @@ const BattleAnimations = {
         setupCleanup(pizzaElement, () => {pizzaElement.classList.remove(animationClassName);})
 
         //Continue battle cycle right arounf when the pizzas collide
-        await utils.wait(100);
+        await utils.wait(100, {forceClear: "Enter"});
         onComplete();
     },
 
@@ -43,8 +43,8 @@ const BattleAnimations = {
         //Remove class when animation is fully complete
         setupCleanup(pizzaElement, () => {pizzaElement.classList.remove(animationClassName);})
 
-        //Continue battle cycle right arounf when the pizzas collide
-        await utils.wait(100);
+        //Continue battle cycle right around when the pizzas collide
+        await utils.wait(400, {forceClear: "Enter"});
         onComplete();
     },
 
@@ -66,7 +66,16 @@ const BattleAnimations = {
         //Add to scene
         document.querySelector(".Battle").appendChild(globDiv);
 
-        await utils.wait(820);
+        await utils.wait(820, {forceClear: "Enter"});
+        onComplete();
+    },
+
+    hurt(event, onComplete) {
+        
+        const pizzaElement = event.target.pizzaElement;
+        pizzaElement.classList.add("battle-damage-effect");
+        setupCleanup(pizzaElement, () => {pizzaElement.classList.remove("battle-damage-effect");})
+        //Continue battle cycle immediately for this one
         onComplete();
     }
 }

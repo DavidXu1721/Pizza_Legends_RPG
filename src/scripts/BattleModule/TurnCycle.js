@@ -94,7 +94,7 @@ class TurnCycle {
         if (winner) {
             await this.onNewEvent({
                 type: "textMessage",
-                text: "Winner!"
+                text: `${winner.toUpperCase()} WON !!!`
             })
             this.onWinner(winner)
             return;
@@ -165,10 +165,10 @@ class TurnCycle {
 
     async init() {
 
-        // await this.onNewEvent({
-        //     type: "textMessage",
-        //     text: "The battle is starting!"
-        // })
+        await this.onNewEvent({
+            type: "textMessage",
+            text: `${this.battle.enemy.name} wants to throw down!`
+        })
 
         // Start the first turn!
         this.turn();

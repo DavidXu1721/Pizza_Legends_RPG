@@ -20,7 +20,7 @@ class Combatant {
     }
 
     get isActive() {
-        return this.battle.activeCombatants[this.team]===this.id
+        return this.battle?.activeCombatants[this.team]===this.id
     }
 
     get givesXp() {
@@ -36,7 +36,7 @@ class Combatant {
             <p class="Combatant_name">${this.name}</p>
             <p class="Combatant_level"></p>
             <div class="Combatant_character_crop">
-                <img class="Combatant_character" alt="${this.name}" src="${this.src}" />
+                <img class="Combatant_character ${this.hp <= 0? "Defeated": ""}" alt="${this.name}" src="${this.src}" />
             </div>
             <img class="Combatant_type" src="${this.icon}" alt="${this.type}" />
             <svg viewBox='0 0 26 3' class="Combatant_life-container">

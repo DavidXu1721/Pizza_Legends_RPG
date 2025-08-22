@@ -8,6 +8,15 @@
     background-size: cover;
     image-rendering: pixelated;
 
+    .battle-effects-canvas{
+        position: relative;
+        z-index: 500;
+        pointer-events: none;
+        height: 100%;
+        width: 100%;
+        opacity: 1;
+    }
+
     .Battle_hero, .Battle_enemy{
         position: absolute;
         transform: scale(2);
@@ -36,6 +45,7 @@
     
     .Combatant{
         transform: scale(2);
+        transition: opacity 0.4s;
     }
 
     .Combatant[data-active="false"] {
@@ -43,21 +53,70 @@
     }
 
     .Combatant[data-active="true"] {
-        opacity: 2;
+        opacity: 1;
     }
 
     .Pizza {
         position: absolute;
         transform: scale(2);
-        background: url(./src/assets/characters/pizzas/pizza-shadow.png) no-repeat no-repeat;
+        transition: opacity 0.4s, transform 0.4s;
+
+        .sprite{
+            background: url(./src/assets/characters/pizzas/pizza-shadow.png) no-repeat no-repeat;
+        }
+        
+        .filter{ /* this works for now */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 0, 0, 0);
+            mask-image: url('./src/assets/characters/pizzas/s002.png');
+            mask-size: contain;
+            mask-repeat: no-repeat;
+        }
     }
 
     .Pizza[data-active="false"] {
         opacity: 0;
+        transform: translate3d(0, 16px, 0) scale(2);
     }
 
     .Pizza[data-active="true"] {
         opacity: 2;
+        transform: translate3d(0, 0, 0) scale(2);
+    }
+
+    .Team{
+        display: flex;
+        position: absolute;
+        top: 4px;
+        gap: 4px;
+    }
+
+    .Team[data-team="player"]{
+        left: 4px;
+    }
+
+    .Team[data-team="enemy"]{
+        right: 4px;
+    }
+
+    /* Start stateful paths as display:none */
+    .Team .dead-pizza{
+        display: none;
+    }
+    .Team .active-pizza-indicator{
+        display: none;
+    }
+
+    /* Display then as opted in by data-attributes */
+    .Team [data-dead="true"] .dead-pizza{
+        display: block;
+    }
+    .Team [data-active="true"] .active-pizza-indicator{
+        display: block;
     }
 }
 
@@ -73,15 +132,20 @@
         left: 3px;
         width: 22px;
         height: 12px;
-        overflow: hidden; /*this way we can crop out the combatant picture for the frame*/
+        overflow: hidden; /*this way we can crop out the combatant picture for the frame, we are also hiding this since we are only using this for the hud element*/
     }
+
     .Combatant_character{
         display:block;
         position:absolute;
         left: -11px;
         bottom: -7px;
     }
-        
+
+    .Combatant_character.Defeated{
+        filter: grayscale(1);
+    }
+  
     .Combatant_name {
         position: absolute;
         left: -2px;
@@ -170,24 +234,70 @@
 }
 
 .Pizza[data-team="player"] {
-    bottom: 73px;
+    bottom: 70px;
     left: 51px;
 }
 
 .Pizza[data-team="enemy"] {
-    top: 47px;
+    top: 50px;
     right: 100px;
 }
 
 /* Animations */
 
 @keyframes battle-damage-blinking { /* the typical flashing effect from taking damage */
-    to {
+    100% {
         visibility: hidden;
     }
 }
 .battle-damage-blinking{
     animation: battle-damage-blinking 0.3s steps(2, start) infinite;
+}
+
+@keyframes battle-damage-effect-filter { /* the typical flashing effect from taking damage */
+    0% {
+        background-color: rgba(255, 0, 0, 0);
+    }
+    50% {
+        background-color: rgba(255, 0, 0, 0.4);
+    }
+    100% {
+        background-color: rgba(255, 0, 0, 0);
+    }
+}
+
+@keyframes battle-damage-effect-filter { /* the typical flashing effect from taking damage */
+    0% {
+        background-color: rgba(255, 0, 0, 0);
+    }
+    50% {
+        background-color: rgba(255, 0, 0, 0.4);
+    }
+    100% {
+        background-color: rgba(255, 0, 0, 0);
+    }
+}
+
+@keyframes battle-damage-effect-pizza { /* the typical flashing effect from taking damage */
+    0% { transform: translate(1px, 1px) scale(2) }
+    10% { transform: translate(-1px, -2px) scale(2); }
+    20% { transform: translate(-3px, 0px) scale(2) }
+    30% { transform: translate(3px, 2px) scale(2) }
+    40% { transform: translate(1px, -1px) scale(2) }
+    50% { transform: translate(-1px, 2px) scale(2); }
+    60% { transform: translate(-3px, 1px) scale(2) }
+    70% { transform: translate(3px, 1px) scale(2); }
+    80% { transform: translate(-1px, -1px) scale(2) }
+    90% { transform: translate(1px, 2px) scale(2) }
+    100% { transform: translate(1px, -2px) scale(2); }
+}
+
+.battle-damage-effect{
+    animation: battle-damage-effect-pizza 0.3s ;
+
+    .filter{
+        animation: battle-damage-effect-filter 0.2s ; /* kinda wierd but this should matter at the end of the day */
+    }
 }
 
 @keyframes battle-spin1-right {
@@ -200,18 +310,18 @@
 }
 @keyframes battle-spin1-left {
     0% { transform: translate3d(0, 0, 0) rotate(0deg) scale(2)}
-    25% { transform: translate3d(-50%, 25%, 0) rotate(45deg) scale(2)}
+    25% { transform: translate3d(-100%, 25%, 0) rotate(-45deg) scale(2)}
     100% { transform: translate3d(0, 0, 0) scale(2)}
 }
 .battle-spin1-left{
-    animation: battle-spin-left 0.8s;
+    animation: battle-spin1-left 0.8s;
 }
 
 @keyframes battle-spin2-right {
     0% { transform: translate3d(0, 0, 0)  translate3d(0, 50%, 0) rotate3d(1, 0, 0, 0deg)  translate3d(0, -50%, 0) scale(2)}
-    25% { transform: translate3d(0, 50%, 0) rotate3d(1, 0, 0, 45deg) translate3d(0, -50%, 0) scale(3)}
-    50% { transform: translate3d(0, 50%, 0) rotate3d(1, 0, 0, 90deg)  translate3d(0, -50%, 0) scale(3)}
-    70% { transform: translate3d(100%, -25%, 0) translate3d(0, 50%, 0) rotate3d(1, 0, 0, 180deg)  translate3d(0, -50%, 0)scale(3)}
+    25% { transform: translate3d(100%, -25%, 0) translate3d(0, 50%, 0) rotate3d(1, 0, 0, 0deg) translate3d(0, -50%, 0) scale(3)}
+    50% { transform: translate3d(100%, -25%, 0) translate3d(0, 50%, 0) rotate3d(1, 0, 0, 150deg)  translate3d(0, -50%, 0) scale(3)}
+    70% { transform: translate3d(100%, -25%, 0) translate3d(0, 50%, 0) rotate3d(1, 0, 0, 0deg)  translate3d(0, -50%, 0)scale(3)}
     100% { transform: translate3d(0, 0, 0) scale(2)}
 }
 .battle-spin2-right{
@@ -219,9 +329,9 @@
 }
 @keyframes battle-spin2-left {
     0% { transform: translate3d(0, 0, 0) translate3d(0, 50%, 0) rotate3d(1, 0, 0, 0deg) translate3d(0, -50%, 0) scale(2)}
-    25% { transform: translate3d(0, 50%, 0) rotate3d(1, 0, 0, 45deg) translate3d(0, -50%, 0) scale(3)}
-    50% { transform: translate3d(0, 50%, 0) rotate3d(1, 0, 0, 90deg) translate3d(0, -50%, 0) scale(3)}
-    25% { transform: translate3d(-50%, 25%, 0) translate3d(0, 50%, 0) rotate3d(1, 0, 0, 180deg) translate3d(0, -50%, 0) scale(3)}
+    25% { transform: translate3d(-100%, 25%, 0) translate3d(0, 50%, 0) rotate3d(1, 0, 0, 0deg) translate3d(0, -50%, 0) scale(3)}
+    50% { transform: translate3d(-100%, 25%, 0) translate3d(0, 50%, 0) rotate3d(1, 0, 0, 150deg) translate3d(0, -50%, 0) scale(3)}
+    25% { transform: translate3d(-100%, 25%, 0) translate3d(0, 50%, 0) rotate3d(1, 0, 0, 0deg) translate3d(0, -50%, 0) scale(3)}
     100% { transform: translate3d(0, 0, 0) scale(2)}
 }
 .battle-spin2-left{
