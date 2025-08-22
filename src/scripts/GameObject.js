@@ -40,7 +40,7 @@ class GameObject {
 
     async doBehaviourEvent(map) {
 
-        //Don't do anything if there is a more important cutscene or I don't have any behaviours in the first place
+        //Don't do anything if there is a more important cutscene or if there aren't any behaviours in the first place
         if (map.isCutscenePlaying || this.behaviourLoop.length === 0) {
             return;
         }
