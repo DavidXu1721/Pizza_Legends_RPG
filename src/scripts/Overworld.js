@@ -5,6 +5,9 @@ import DirectionInput from "./DirectionInput";
 import KeyPressListener from "./KeyPressListener";
 import utils from "./utils";
 import Hud from "./Hud";
+import PizzaStone from "./PizzaStone";
+
+const IGNORE_CACHE = true
 
 
 class Overworld {
@@ -26,7 +29,7 @@ class Overworld {
     }
 
     async getMapData() {
-        if (!this._mapDataCache) {
+        if (!this._mapDataCache || IGNORE_CACHE) {
             const response = await fetch("./src/data/OverworldMaps.json");
             this._mapDataCache = await response.json();
             console.log("Successfully retrieved data: "+ JSON.stringify(this._mapDataCache));
@@ -35,7 +38,7 @@ class Overworld {
     }
 
     async getPizzaData() {
-        if (!this._pizzaDataCache) {
+        if (!this._pizzaDataCache || IGNORE_CACHE) {
             const response = await fetch("./src/data/Pizzas.json");
             this._pizzaDataCache = await response.json();
             console.log("Successfully retrieved Pizzas Data: "+ this._pizzaDataCache);
@@ -68,6 +71,10 @@ class Overworld {
                 case "Person":
                     console.log("Initiating Person GameObject");
                     newObject = new Person(mapData.gameObjects[key]);
+                    break;
+                case "PizzaStone":
+                    console.log("Initiating PizzaStone GameObject");
+                    newObject = new PizzaStone(mapData.gameObjects[key]);
                     break;
                 default:
                     console.log("No type specified, initiating Game Object");
