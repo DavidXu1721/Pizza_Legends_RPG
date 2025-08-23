@@ -12,7 +12,8 @@ class GameObject {
         this.direction = config.direction || 'down';
         this.sprite = new Sprite({
             gameObject: this,
-            src: config.src || '/src/assets/characters/people/hero.png'
+            src: config.src || '/src/assets/characters/people/hero.png',
+            useShadow: config.type === "Person"
         });
 
         this.behaviourLoop = config.behaviourLoop || [];
