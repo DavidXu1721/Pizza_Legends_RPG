@@ -58,6 +58,13 @@
             }
           ]
         },
+      "pizzaStone": {
+        "type": "PizzaStone",
+        "x": 3,
+        "y": 6,
+        "storyFlag": "USED_PIZZA_STONE",
+        "pizzas": ["v001", "f001"]
+      },
       "_comment": {
         
       } 
