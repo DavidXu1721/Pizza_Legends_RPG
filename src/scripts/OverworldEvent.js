@@ -1,4 +1,5 @@
 import Battle from "./BattleModule/Battle";
+import CraftingMenu from "./CraftingMenu";
 import PauseMenu from "./PauseMenu";
 import SceneTransition from "./SceneTransition";
 import playerState from "./State/PlayerState";
@@ -65,7 +66,10 @@ class OverworldEvent {
     }
 
     textMessage(resolve) {
-
+        if (this.event.pause) {
+            this.map.isPaused = true; // this is for certain simple standalone notifications that would pause the game
+        }
+                            
         if (this.event.faceHero) {
             const obj = this.map.gameObjects[this.event.faceHero];
             // because the hero interacts with whatever is directly in front of him, we can just set the direction of the NPC to the oppiste of the hero's
@@ -75,7 +79,15 @@ class OverworldEvent {
 
         const message = new TextMessage({
             text: this.event.text,
-            onComplete: () => resolve() // we are decoupling onComplete and resolve so that we may use it in other situations
+            config: this.event.config,
+            onComplete: () => {
+                resolve(); // we are decoupling onComplete and resolve so that we may use it in other situations
+                if (this.event.pause) {
+                    this.map.isPaused = false;
+                    this.map.overworld.startGameLoop();
+                }
+                
+            }
         })
 
         message.init(document.querySelector("#" + this.map.elementId))
@@ -85,7 +97,11 @@ class OverworldEvent {
         
         const sceneTransition = new SceneTransition();
         sceneTransition.init(document.querySelector("#" + this.map.elementId), async () => {
-            this.map.overworld.startMap(await this.map.overworld.loadMapData(this.event.newMap));
+            this.map.overworld.startMap(await this.map.overworld.loadMapData(this.event.newMap), {
+                x: this.event.x,
+                y: this.event.y,
+                direction: this.event.direction
+            });
             resolve();
             sceneTransition.fadeOut();
         })
@@ -113,7 +129,6 @@ class OverworldEvent {
         this.map.isPaused = true;
         const menu = new PauseMenu(this.map ,{
             onComplete: () => {
-                console.log("blah");
                 
                 resolve();
                 this.map.isPaused = false;
@@ -127,6 +142,20 @@ class OverworldEvent {
     addStoryFlag(resolve) {
         playerState.storyFlags[this.event.flag] = true;
         resolve();
+    }
+
+    craftingMenu(resolve) {
+        this.map.isPaused = true; // for what it is, I think that pausing the game when we enter the crafting menu is for the best
+        const menu = new CraftingMenu(this.map ,{
+            pizzas: this.event.pizzas,
+            onComplete: () => {
+                
+                resolve();
+                this.map.isPaused = false;
+                this.map.overworld.startGameLoop();
+            }
+        })
+        menu.init(document.querySelector("#" + this.map.elementId));
     }
 
     init() {
