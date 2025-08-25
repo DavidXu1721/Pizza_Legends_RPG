@@ -128,7 +128,6 @@ class KeyboardMenu {
             this.focusButton(Number(nextButton?.dataset.button)); //if there is no button then we are at the bottom of the valid buttons, so don't do anything
         })
         this.enterBind = new KeyPressListener("Enter", () => {
-            console.log("CLICK with enter");
             
             if (this.prevFocus.classList.contains("disabled")) {// if the button is disabled we stop the function, in this case, we shouldn't be able to "click" a disabled button with the Enter key, 
                 console.warn()

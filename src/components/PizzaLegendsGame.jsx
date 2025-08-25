@@ -6,6 +6,7 @@ import '../styles/Battle.css'
 import '../styles/KeyboardMenu.css'
 import '../styles/Hud.css'
 import '../styles/Menus.css'
+import '../styles/TitleScreen.css'
 
 function PizzaLegendsGame(props) {
   useScript('./src/scripts/init.js', ['defer'], 'module')

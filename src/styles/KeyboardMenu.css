@@ -31,6 +31,7 @@
     .menu-button.disabled{
         color: grey;
         background: none;
+        cursor: default;
     }
 
     .option {

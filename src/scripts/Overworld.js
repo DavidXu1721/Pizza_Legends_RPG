@@ -7,6 +7,7 @@ import utils from "./utils";
 import Hud from "./Hud";
 import PizzaStone from "./PizzaStone";
 import Progress from "./State/Progress";
+import TitleScreen from "./TitleScreen";
 
 const IGNORE_CACHE = true
 
@@ -218,15 +219,20 @@ class Overworld {
     async init() { 
         console.log("Hello from the Overworld", this);
 
+        const gameContainer = document.querySelector('#'+ this.elementId)
+
         //Create a new Progress tracker
         this.progress = new Progress();
 
-        //Load save data if it exists
+        //Show the title screen
+        this.titleScreen = new TitleScreen({
+            progress: this.progress
+        })
+        const useSaveFile = await this.titleScreen.init(gameContainer)
+
+        //Load save data if it exists and the player chose to use it
         let initialHeroState = null;
-        const saveFile = this.progress.getSaveFile()
-        console.log(saveFile);
-        
-        if (saveFile) {
+        if (useSaveFile) {
             this.progress.load();
             initialHeroState = {
                 x: this.progress.startingHeroX,
@@ -237,10 +243,9 @@ class Overworld {
 
         //Load the HUD
         this.hud = new Hud(this);
-        this.hud.init(document.querySelector('#'+ this.elementId));
+        this.hud.init(gameContainer);
 
         // Start the first map
-        console.log(initialHeroState);
         
         this.startMap(await this.loadMapData(this.progress.mapId), initialHeroState)
 
