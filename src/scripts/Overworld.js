@@ -6,6 +6,7 @@ import KeyPressListener from "./KeyPressListener";
 import utils from "./utils";
 import Hud from "./Hud";
 import PizzaStone from "./PizzaStone";
+import Progress from "./State/Progress";
 
 const IGNORE_CACHE = true
 
@@ -47,6 +48,8 @@ class Overworld {
     }
 
     async loadMapData(mapName) {
+        console.log(mapName);
+        
         let data;
 
         try {
@@ -57,6 +60,8 @@ class Overworld {
 
         const mapData = data[mapName];
         console.log("Turning the gameobject configs into objects");
+        console.log(mapData);
+        
         Object.keys(mapData.gameObjects).forEach(key => {
             if (key === "_comment"){
                 delete mapData.gameObjects[key];
@@ -95,7 +100,9 @@ class Overworld {
         const cutsceneSpacesDict = {}
         mapData.cutsceneSpaces.forEach(spaceData =>{
             const key = utils.asGridCoords(spaceData.coords[0], spaceData.coords[1])
-
+            if (cutsceneSpacesDict[key] !== undefined) {
+                console.error("Error: Same space has more than one cutscene!");
+            }
             cutsceneSpacesDict[key] = spaceData.data
         })
         mapData.cutsceneSpaces = cutsceneSpacesDict;
@@ -104,10 +111,27 @@ class Overworld {
         return new OverworldMap(this, {...mapData, elementId: this.elementId});
     }
 
-    startMap(map){
-        this.map = map
-        this.map.overworld = this;
-        this.map.mountObjects();
+    startMap(map, heroInitialState = null){
+        this.map = map;
+
+        if (heroInitialState) {
+            console.log(heroInitialState);
+            this.map.gameObjects.hero.x = heroInitialState.x;
+            this.map.gameObjects.hero.y = heroInitialState.y;
+            console.log(heroInitialState.direction);
+            
+            this.map.gameObjects.hero.direction = heroInitialState.direction;
+        }
+
+        this.map.mountObjects(); // do this after adjusting the player location so that the collision is properly updated (the "repositioning" needs the map.moveWall function)
+        console.log(map);
+        
+        this.progress.mapId = map.mapId;
+        this.progress.startingHeroX = this.map.gameObjects.hero.x;
+        this.progress.startingHeroY = this.map.gameObjects.hero.y;
+        this.progress.startingHeroDirection = this.map.gameObjects.hero.direction;
+        
+        
     }
 
     startGameLoop() {
@@ -194,11 +218,33 @@ class Overworld {
     async init() { 
         console.log("Hello from the Overworld", this);
 
+        //Create a new Progress tracker
+        this.progress = new Progress();
+
+        //Load save data if it exists
+        let initialHeroState = null;
+        const saveFile = this.progress.getSaveFile()
+        console.log(saveFile);
+        
+        if (saveFile) {
+            this.progress.load();
+            initialHeroState = {
+                x: this.progress.startingHeroX,
+                y: this.progress.startingHeroY,
+                direction: this.progress.startingHeroDirection,
+            }
+        }
+
+        //Load the HUD
         this.hud = new Hud(this);
         this.hud.init(document.querySelector('#'+ this.elementId));
 
-        this.startMap(await this.loadMapData("DemoRoom"))
+        // Start the first map
+        console.log(initialHeroState);
+        
+        this.startMap(await this.loadMapData(this.progress.mapId), initialHeroState)
 
+        // Create controls
         this.bindActionInput();
         this.bindHeroPositionCheck();
 
@@ -230,8 +276,6 @@ class Overworld {
         //     // {target: "npcA", type: "walk", direction: "left"},
         //     // {target: "npcA", type: "stand", direction: "up", time: 800},
         // ])
-
-        
 
         this.startGameLoop();
     }

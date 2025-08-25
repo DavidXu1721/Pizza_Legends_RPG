@@ -97,11 +97,11 @@ class OverworldEvent {
         
         const sceneTransition = new SceneTransition();
         sceneTransition.init(document.querySelector("#" + this.map.elementId), async () => {
-            this.map.overworld.startMap(await this.map.overworld.loadMapData(this.event.newMap), {
-                x: this.event.x,
-                y: this.event.y,
-                direction: this.event.direction
-            });
+            this.map.overworld.startMap(await this.map.overworld.loadMapData(this.event.newMap), this.event.initialHeroState ? {
+                x: utils.withGrid(this.event.initialHeroState.x),
+                y: utils.withGrid(this.event.initialHeroState.y),
+                direction: this.event.initialHeroState.direction
+            }: null);
             resolve();
             sceneTransition.fadeOut();
         })

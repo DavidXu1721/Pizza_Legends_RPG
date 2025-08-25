@@ -1,5 +1,6 @@
 {
   "DemoRoom": {
+    "id": "DemoRoom",
     "lowerSrc": "/src/assets/maps/DemoLower.png",
     "upperSrc": "/src/assets/maps/DemoUpper.png",
     "gameObjects": {
@@ -23,8 +24,20 @@
           ],
           "talking": [
             {
+              "requires": ["DEFEATED_BETH"],
+              "events":[
+                {"type":"textMessage", "text": "You already beat me, get lost.", "faceHero": "npcA"}
+              ]
+            },
+            {
               "requires": ["TALKED_TO_ERIO"],
               "events":[
+                {"type":"textMessage", "text": "Isn't Erio amazing?", "faceHero": "npcA"},
+                {"type":"textMessage", "text": "Isn't Erio amazing?", "faceHero": "npcA"},
+                {"type":"textMessage", "text": "Isn't Erio amazing?", "faceHero": "npcA"},
+                {"type":"textMessage", "text": "Isn't Erio amazing?", "faceHero": "npcA"},
+                {"type":"textMessage", "text": "Isn't Erio amazing?", "faceHero": "npcA"},
+                {"type":"textMessage", "text": "Isn't Erio amazing?", "faceHero": "npcA"},
                 {"type":"textMessage", "text": "Isn't Erio amazing?", "faceHero": "npcA"}
               ]
             },
@@ -112,6 +125,7 @@
     ]
   },
   "Kitchen": {
+    "id": "Kitchen",
     "lowerSrc": "/src/assets/maps/KitchenLower.png",
     "upperSrc": "/src/assets/maps/KitchenUpper.png",
     "gameObjects": {
@@ -157,6 +171,63 @@
       [0, 10],[1, 10],[2, 10],[3, 10],[4, 10],        [6, 10],[7, 10],[8, 10],[9, 10],[10,10],  [11, 10],[12, 10],[13, 10], 
                                       [4, 11],[5, 11],[6, 11]
     ],
-    "cutsceneSpaces": []
+    "cutsceneSpaces": [
+      {
+        "coords": [5, 10],
+        "data": [
+          {
+            "events": [
+              {
+                "type": "changeMap", 
+                "newMap": "Street",
+                "initialHeroState":{
+                  "x": 29, 
+                  "y": 10,
+                  "direction": "down"
+                }
+                
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "Street": {
+    "id": "Street",
+    "lowerSrc": "/src/assets/maps/StreetLower.png",
+    "upperSrc": "/src/assets/maps/StreetUpper.png",
+    "gameObjects": {
+      "hero": {
+        "type": "Person",
+        "direction": "up",
+        "isPlayerControlled": true,
+        "x": 30,
+        "y": 10,
+        "src": "/src/assets/characters/people/hero.png"
+      }
+    },
+    "walls": [
+    ],
+    "cutsceneSpaces":[
+      {
+        "coords": [29, 9],
+        "data": [
+          {
+            "events": [
+              {
+                "type": "changeMap", 
+                "newMap": "Kitchen",
+                "initialHeroState":{
+                  "x": 5,
+                  "y": 9,
+                  "direction": "up"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 }

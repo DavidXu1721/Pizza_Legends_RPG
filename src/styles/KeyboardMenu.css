@@ -101,11 +101,3 @@
         right:  var(--menu-width);
     }
 }
-
-/* Pause menu specific */
-
-.PauseMenu .KeyboardMenu {
-    position: relative;
-    border: 0;
-}
-

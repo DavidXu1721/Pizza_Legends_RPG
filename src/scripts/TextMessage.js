@@ -11,6 +11,8 @@ class TextMessage {
         // if this is not defined, when the text message must be manually progressed
         this.onComplete = onComplete;
         this.element = null;
+        console.log(config);
+        
     }
 
     createElement() {

@@ -12,7 +12,7 @@ class Sprite {
 
         //Shadow
         this.shadow = new Image();
-        this.useShadow = true; //config.useShadow || false
+        this.useShadow = config.useShadow || false
         if (this.useShadow) {
             this.shadow.src = "/src/assets/characters/shadow.png";
             this.shadow.onload = () => {
@@ -44,6 +44,7 @@ class Sprite {
     }
 
     get frame() {
+        //console.log(this.currentAnimationName);
         return this.animations[this.currentAnimationName][this.currentAnimationFrame];
     }
 

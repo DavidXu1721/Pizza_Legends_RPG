@@ -17,7 +17,6 @@ class Person extends GameObject {
             "left"  : ["x", -1],
             "right" : ["x", 1],
         }
-
     }
 
     update(state) {

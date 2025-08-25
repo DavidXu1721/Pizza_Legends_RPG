@@ -6,6 +6,7 @@ class OverworldMap {
     constructor(overworld, config) {
         this.elementId = config.elementId;
         this.overworld = overworld;
+        this.mapId = config.id;
         this.gameObjects = config.gameObjects;
         this.walls = config.walls || {}; // places the player can't walk through
         this.cutsceneSpaces = config.cutsceneSpaces || {}; // places that trigger cutscenes when walked on
@@ -99,8 +100,7 @@ class OverworldMap {
                 }))
                 
             } else {
-                result = await this.playEvent(currentEvent) // WHY IS THIS RETURNING UNDEFINED????
-                console.log(result);
+                result = await this.playEvent(currentEvent)
             }
             
             if (result === "LOST_BATTLE") {

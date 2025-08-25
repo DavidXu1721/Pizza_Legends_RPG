@@ -35,14 +35,15 @@ class PauseMenu {
                     label: "Save",
                     description: "Save your progress",
                     handler: () => {
-                        //We'll come back to this...
+                        this.map.overworld.progress.save();
+                        this.close();
                     }
                 },
                 {
                     label: "Close",
                     description: "Close the pause menu",
                     handler: () => {
-                        this.close()
+                        this.close();
                     }
                 }
             ]
@@ -90,6 +91,7 @@ class PauseMenu {
     createElement() {
         this.element = document.createElement("div");
         this.element.classList.add("PauseMenu");
+        this.element.classList.add("overlayMenu");
         this.element.innerHTML = (`
             <h2>Pause Menu</h2>    
         `)
@@ -102,13 +104,13 @@ class PauseMenu {
         this.onComplete();
     }
 
-    init(container) {
+    async init(container) {
         this.createElement();
         this.keyboardMenu = new KeyboardMenu({
             descriptionContainer: {parent: container}
         })
         this.keyboardMenu.init(this.element);
-        this.keyboardMenu.setOptions(this.getOptions('root'));
+        this.keyboardMenu.setOptions(await this.getOptions('root'));
 
         container.appendChild(this.element);
         this.escBind = new KeyPressListener("Escape", 
