@@ -50,7 +50,7 @@ const BattleAnimations = {
 
     async glob(event, onComplete) {
         const {caster} = event;
-        const globDiv =  document.createElement("div");
+        const globDiv = document.createElement("div");
         globDiv.classList.add("glob-orb");
         globDiv.classList.add(caster.team === "player" ? "battle-glob-right": "battle-glob-left");
         
@@ -68,6 +68,13 @@ const BattleAnimations = {
 
         await utils.wait(820, {forceClear: "Enter"});
         onComplete();
+    },
+
+    async sauce(event, onComplete){
+        const {caster} = event;
+        const globDiv = document.createElement("div");
+        globDiv.classList.add("glob-orb");
+        globDiv.classList.add(caster.team === "player" ? "battle-glob-right": "battle-glob-left");
     },
 
     hurt(event, onComplete) {
