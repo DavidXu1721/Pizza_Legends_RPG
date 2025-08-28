@@ -65,7 +65,7 @@
           "talking": [
             {
               "events":[
-                {"type":"textMessage", "text": "Bahahaha!", "faceHero": "npcB"},
+                {"type":"textMessage", "text": "Bahahaha!", "faceHero": "npcB", "target": "npcB"},
                 {"type": "addStoryFlag", "flag": "TALKED_TO_ERIO"}
               ]
             }

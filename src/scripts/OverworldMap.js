@@ -38,8 +38,21 @@ class OverworldMap {
 
     detectObstruction(currentX, currentY, direction) {
         const coordinates = utils.nextPosition(currentX, currentY, direction);
-        //console.log(coordinates);
-        return this.walls[coordinates[0] +','+ coordinates[1]];
+        
+        if(this.walls[coordinates[0] +','+ coordinates[1]]) {
+            return true;
+        }
+        //  If there are no walls, check for game objects at this position
+        return Object.values(this.gameObjects).find(obj => {
+            if (obj.x === coordinates[0] && obj.y === coordinates[1]) { return true; }
+            // console.log(obj.intentPosition);
+            // console.log(coordinates);
+            // console.log(obj.intentPosition === coordinates);
+            
+            if (obj.intentPosition && obj.intentPosition[0] === coordinates[0] && obj.intentPosition[1] === coordinates[1]) { return true; }
+            // if there is not object there return false
+            return false;
+        })
     }
 
     mountObjects() {
@@ -61,7 +74,7 @@ class OverworldMap {
 
         let result
 
-        if (!eventPart.target) { // if the event didn't specify a target then we don't need to wait for the behaviour to complete
+        if (!eventPart.target /* TODO: for now whenever I need to wait for some NPC to complete thier current behaviour, I will mention them as a target. In the future I ought to add a "waitFor" property */ ) { // if the event didn't specify a target then we don't need to wait for the behaviour to complete
             result = await eventHandler.init();
         } else {
             
@@ -118,7 +131,15 @@ class OverworldMap {
         const nextCoords = utils.nextPosition(hero.x, hero.y, hero.direction);
 
         const match = Object.values(this.gameObjects).find(object => {
-            return `${object.x},${object.y}`=== `${nextCoords[0]},${nextCoords[1]}`
+            if (`${object.x},${object.y}`=== `${nextCoords[0]},${nextCoords[1]}`) {
+                console.log("PERFECT");
+                
+                return true;
+            }
+            if (object.intentPosition && `${object.intentPosition[0]},${object.intentPosition[1]}`=== `${nextCoords[0]},${nextCoords[1]}`) {
+                return true;
+            }
+            return false;
         }); 
         if (!this.isCutscenePlaying && match && match.talking.length) { // if the detected object has a talking event, and we are not already in a cutscene, play the cutscene
             
@@ -145,17 +166,6 @@ class OverworldMap {
         }
     }
 
-    addWall(x, y){
-        this.walls[`${x},${y}`] = true;
-    }
-    removeWall(x, y){
-        delete this.walls[`${x},${y}`];
-    }
-    moveWall(prevX, prevY, direction){
-        this.removeWall(prevX, prevY);
-        const [x,y] = utils.nextPosition(prevX, prevY, direction);
-        this.addWall(x,y);
-    }
 }
 
 export default OverworldMap

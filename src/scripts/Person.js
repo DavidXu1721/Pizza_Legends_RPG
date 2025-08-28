@@ -7,6 +7,7 @@ class Person extends GameObject {
         this.movingProgressRemaining = 0;
         this.standingProgressRemaining = 0; //TODO: the way it is now haveing a timeout in the "stand" behaviour code makes it so that if we pause the game, the standing time still "runs" so I want to have a standingProgressRemaining property that updates with the game loop
         this.isStanding = false; // this is to indicate when an NPC is currently in a stand command currently not necessary as I have already dealt with events not overriding other stand events
+        this.intentPosition = null; // [x, y]
         this.isTryingToMove = false; // niche case, but in situations where NPCs are being blocked, I'd want them to still play the walking animation
         this.isPlayerControlled = config.isPlayerControlled || false
 
@@ -96,6 +97,9 @@ class Person extends GameObject {
                 //Ready to walk!
                 this.isTryingToMove = false;
                 this.movingProgressRemaining = utils.withGrid(1);
+                // Add next position
+                this.intentPosition = utils.nextPosition(this.x, this.y, this.direction)
+                
                 break;
             case 'stand':
                 this.isStanding = true
@@ -129,6 +133,8 @@ class Person extends GameObject {
 
         if (this.movingProgressRemaining === 0 && moveDist > 0 /* We also need to check if the person actually moved */) {
             //We finished the walk!
+            this.intentPosition = null
+
             utils.emitEvent("PersonWalkingComplete", {
                 targetId: this.id
             })

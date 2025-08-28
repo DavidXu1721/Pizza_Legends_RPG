@@ -51,7 +51,8 @@ class OverworldEvent {
         }, {
             type: "walk",
             direction: this.event.direction,
-            retry: true // if the path is blocked, the person will attempt to move into the space on the next frame
+            retry: true, // if the path is blocked, the person will attempt to move into the space on the next frame
+            isCutscene: this.map.isCutscenePlaying // during a cutscene, I want any none cutscene walk behaviours that are blocked to be aborted, but if ther walk is played in a cutscene, I want them to keep trying it
         })
 
         //Set up a handle to complete when correct person is done walking, then resolve the event

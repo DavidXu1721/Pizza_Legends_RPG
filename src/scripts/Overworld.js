@@ -199,7 +199,7 @@ class Overworld {
             this.map.checkForActionCutscene()
         })
         new KeyPressListener("Escape", () => {
-            if (!this.map.isCutscenePlaying) {
+            if (!this.map.isCutscenePlaying) { // I would want to make it so that you can pause in cutscenes, but I feel like that might break some stuff
                 this.map.startCutscene([
                     {type: "pause"}
                 ])
