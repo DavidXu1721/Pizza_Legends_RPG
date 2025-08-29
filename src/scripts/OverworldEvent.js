@@ -96,6 +96,11 @@ class OverworldEvent {
 
     async changeMap(resolve) { // this function needs the async as this.map.overworld.loadMapData is an async function
         
+        //Deactivate old objects
+        Object.values(this.map.gameObjects).forEach(obj => {
+            obj.isMounted = false;
+        })
+
         const sceneTransition = new SceneTransition();
         sceneTransition.init(document.querySelector("#" + this.map.elementId), async () => {
             this.map.overworld.startMap(await this.map.overworld.loadMapData(this.event.newMap), this.event.initialHeroState ? {

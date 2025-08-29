@@ -135,61 +135,82 @@ class Overworld {
         
     }
 
+    gameLoopStepWork(delta) {
+
+        if (this.map === null){ return ;}
+        //Clear off the canvas
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+
+        //Establish the camera person, currently it is the hero
+        const cameraTarget = this.map.gameObjects.hero;
+
+        //console.log(this.map.isCutscenePlaying? "In a cutscene": "Not in cutscene")
+
+        //Update Game Objects
+        Object.values(this.map.gameObjects).forEach(object => {
+            object.update({
+                delta,
+                arrow: this.directionInput.direction,
+                map: this.map
+            });
+        })
+
+        //Draw Lower Layer
+        this.map.drawLowerImage(this.ctx, cameraTarget);
+
+        //Draw Game Objects
+        Object.values(this.map.gameObjects).sort((a, b) => {
+            return a.y - b.y;
+        }).forEach(object => {
+            object.sprite.draw(this.ctx, cameraTarget);
+        })
+
+        //Draw Upper Layer
+        this.map.drawUpperImage(this.ctx, cameraTarget);
+
+        if (this.map.isPaused) {
+            this.ctx.fillStyle = "red";
+            this.ctx.font = "20px Pixelify Sans";
+            this.ctx.textAlign = "right";
+            this.ctx.fillText("GAME PAUSED", utils.CONFIG_DATA.SCREEN_DIMENSIONS[0] * utils.CONFIG_DATA.GRID_SIZE + 9, 20.5);
+        } else if (this.map.isCutscenePlaying) {
+            this.ctx.fillStyle = "red";
+            this.ctx.font = "20px Pixelify Sans";
+            this.ctx.textAlign = "right";
+            this.ctx.fillText("CUTSCENE PLAYING", utils.CONFIG_DATA.SCREEN_DIMENSIONS[0] * utils.CONFIG_DATA.GRID_SIZE + 9, 20.5);
+        }
+            
+    }
+
     startGameLoop() {
+
+        let previousMs;
+        const step = 1/60;
+
         console.log("starting gameplay loop")
-        const step = () => {
+        const stepFn = (timestampMs) => {
             // console.log("stepping")
 
-            if (this.map !== null){
-                //Clear off the canvas
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
-
-                //Establish the camera person, currently it is the hero
-                const cameraTarget = this.map.gameObjects.hero;
-
-                //console.log(this.map.isCutscenePlaying? "In a cutscene": "Not in cutscene")
-
-                //Update Game Objects
-                Object.values(this.map.gameObjects).forEach(object => {
-                    object.update({
-                        arrow: this.directionInput.direction,
-                        map: this.map
-                    });
-                })
-
-                //Draw Lower Layer
-                this.map.drawLowerImage(this.ctx, cameraTarget);
-
-                //Draw Game Objects
-                Object.values(this.map.gameObjects).sort((a, b) => {
-                    return a.y - b.y;
-                }).forEach(object => {
-                    object.sprite.draw(this.ctx, cameraTarget);
-                })
-
-                //Draw Upper Layer
-                this.map.drawUpperImage(this.ctx, cameraTarget);
-
-                if (this.map.isPaused) {
-                    this.ctx.fillStyle = "red";
-                    this.ctx.font = "20px Pixelify Sans";
-                    this.ctx.textAlign = "right";
-                    this.ctx.fillText("GAME PAUSED", utils.CONFIG_DATA.SCREEN_DIMENSIONS[0] * utils.CONFIG_DATA.GRID_SIZE + 9, 20.5);
-                } else if (this.map.isCutscenePlaying) {
-                    this.ctx.fillStyle = "red";
-                    this.ctx.font = "20px Pixelify Sans";
-                    this.ctx.textAlign = "right";
-                    this.ctx.fillText("CUTSCENE PLAYING", utils.CONFIG_DATA.SCREEN_DIMENSIONS[0] * utils.CONFIG_DATA.GRID_SIZE + 9, 20.5);
-                }
-                
+            if (this.map.isPaused) {
+                return;
             }
 
-            if (!this.map.isPaused) {
-                requestAnimationFrame(step);
+            if (previousMs === undefined) {
+                previousMs = timestampMs
             }
             
+            let delta = (timestampMs - previousMs) / 1000;
+            while (delta >= step) {
+                this.gameLoopStepWork(delta)
+                delta -= step
+            }
+            previousMs = timestampMs - delta * 1000;
+
+            //Business as usual tick
+            requestAnimationFrame(stepFn);
         }
-        step();
+        // First kickoff tick
+        requestAnimationFrame(stepFn);
     }
 
     bindActionInput() {

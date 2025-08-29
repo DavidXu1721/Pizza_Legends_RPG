@@ -39,6 +39,10 @@ class GameObject {
     }
 
     async doBehaviourEvent(map) {
+        
+        if (!this.isMounted) {
+            return;
+        }
 
         //Don't do anything if there is a more important cutscene or if there aren't any behaviours in the first place
         if (map.isCutscenePlaying || this.behaviourLoop.length === 0) {
