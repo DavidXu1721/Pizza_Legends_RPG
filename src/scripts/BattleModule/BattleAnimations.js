@@ -70,12 +70,13 @@ const BattleAnimations = {
         onComplete();
     },
 
-    async sauce(event, onComplete){
-        const {caster} = event;
-        const globDiv = document.createElement("div");
-        globDiv.classList.add("glob-orb");
-        globDiv.classList.add(caster.team === "player" ? "battle-glob-right": "battle-glob-left");
-    },
+    // async sauce(event, onComplete){
+
+    //     const pizzaElement = event.target.pizzaElement;
+    //     const sauceDiv = document.createElement("div");
+    //     sauceDiv.classList.add("sauce-effect");
+    //     pizzaElement.appendChild(sauceDiv);
+    // },
 
     hurt(event, onComplete) {
         
